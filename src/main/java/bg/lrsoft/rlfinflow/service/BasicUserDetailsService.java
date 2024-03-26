@@ -25,13 +25,6 @@ public class BasicUserDetailsService implements UserDetailsService {
     }
 
     public void initialize() {
-        String firstUserUsername = "bryan";
-        String firstUserPassword = "4321a";
-        String firstUserFirstName = "John";
-        String firstLastName = "Doe";
-        String firstUserEmail = "bryansk@fin.com";
-        String firstUserPhoneNumber = "0888888881";
-        managerRepository.add(new FinFlowUser(firstUserUsername, passwordEncoder.encode(firstUserPassword),
-                firstUserFirstName, firstLastName, firstUserEmail, firstUserPhoneNumber));
+
     }
 }
