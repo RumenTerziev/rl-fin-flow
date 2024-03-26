@@ -1,42 +1,38 @@
 package bg.lrsoft.rlfinflow.domain.model;
 
-import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import static jakarta.persistence.GenerationType.UUID;
-
 import java.util.Collection;
-import java.util.UUID;
 
 @Getter
-@Entity
-@Table(name = "managers")
-public class Manager implements UserDetails {
+@ToString
+public class FinFlowUser implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = UUID)
-    private UUID id;
+    private final String username;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+    private final String firstName;
 
-    @Column(nullable = false)
-    private String firstName;
+    private final String lastName;
 
-    @Column
-    private String lastName;
+    private final String email;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    private final String phoneNumber;
 
-    @Column
-    private String phoneNumber;
+    @ToString.Exclude
+    private final String password;
 
-    @Column
-    private String password;
+    public FinFlowUser(String username, String password, String firstName, String lastName, String email, String phoneNumber) {
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

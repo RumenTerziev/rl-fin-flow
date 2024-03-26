@@ -14,10 +14,14 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.Collections;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final BasicUserDetailsService basicUserDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -28,18 +32,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/home").permitAll()
+                        .requestMatchers("/finances").authenticated()
                         .anyRequest().authenticated())
+                .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(withDefaults())
                 .build();
     }
 
     @Bean
     public AuthenticationManager authManager(BasicUserDetailsService basicUserDetailsService) {
-        return new ProviderManager(Collections.singletonList(userBasicAuthProvider(basicUserDetailsService)));
-    }
-
-    @Bean
-    public UserBasicAuthProvider userBasicAuthProvider(BasicUserDetailsService basicUserDetailsService) {
-        return new UserBasicAuthProvider(basicUserDetailsService);
+        return new ProviderManager(Collections.singletonList(new UserBasicAuthProvider(basicUserDetailsService)));
     }
 }

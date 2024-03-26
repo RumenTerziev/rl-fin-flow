@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public class User implements Authentication {
+public class FinFlowBasicAuthentication implements Authentication {
 
     private final String name;
 
@@ -19,7 +19,7 @@ public class User implements Authentication {
 
     private final boolean isAuthenticated;
 
-    public User(String name, UserDetails userDetails, Set<GrantedAuthority> authorities, boolean isAuthenticated) {
+    public FinFlowBasicAuthentication(String name, UserDetails userDetails, Set<GrantedAuthority> authorities, boolean isAuthenticated) {
         this.name = name;
         this.userDetails = userDetails;
         this.authorities = authorities;
@@ -33,7 +33,7 @@ public class User implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return null;
+        return userDetails.getPassword();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class User implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return getName();
+        return userDetails.toString();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class User implements Authentication {
     public boolean equals(Object another) {
         if (this == another) return true;
         if (another == null || getClass() != another.getClass()) return false;
-        User user = (User) another;
+        FinFlowBasicAuthentication user = (FinFlowBasicAuthentication) another;
         return name.equals(user.name) && userDetails.equals(user.userDetails);
     }
 
