@@ -1,13 +1,18 @@
-package bg.lrsoft.rlfinflow.security;
+package bg.lrsoft.rlfinflow.security.config;
 
+import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -26,5 +31,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
+    }
+
+    @Bean
+    public AuthenticationManager authManager(BasicUserDetailsService basicUserDetailsService) {
+        return new ProviderManager(Collections.singletonList(userBasicAuthProvider(basicUserDetailsService)));
+    }
+
+    @Bean
+    public UserBasicAuthProvider userBasicAuthProvider(BasicUserDetailsService basicUserDetailsService) {
+        return new UserBasicAuthProvider(basicUserDetailsService);
     }
 }
