@@ -14,6 +14,9 @@ public class FinFlowUser implements UserDetails {
 
     private final String username;
 
+    @ToString.Exclude
+    private final String password;
+
     private final String firstName;
 
     private final String lastName;
@@ -21,9 +24,6 @@ public class FinFlowUser implements UserDetails {
     private final String email;
 
     private final String phoneNumber;
-
-    @ToString.Exclude
-    private final String password;
 
     public FinFlowUser(String username, String password, String firstName, String lastName, String email, String phoneNumber) {
         this.username = username;

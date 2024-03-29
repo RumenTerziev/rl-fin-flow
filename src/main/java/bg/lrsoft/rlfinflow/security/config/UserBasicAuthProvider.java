@@ -23,8 +23,8 @@ class UserBasicAuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        UserDetails userDetails = basicUserDetailsService.loadUserByUsername(authentication.getPrincipal().toString());
-        if (!passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
+        UserDetails userDetails = basicUserDetailsService.loadUserByUsername((String) authentication.getPrincipal());
+        if (!passwordEncoder.matches((String) authentication.getCredentials(), userDetails.getPassword())) {
             throw new BadCredentialsException("Incorrect username or password!");
         }
         return new FinFlowBasicAuthentication(authentication.getName(), userDetails, new HashSet<>(userDetails.getAuthorities()), true);
