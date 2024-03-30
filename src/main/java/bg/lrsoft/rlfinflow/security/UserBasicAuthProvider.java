@@ -1,6 +1,5 @@
 package bg.lrsoft.rlfinflow.security;
 
-import bg.lrsoft.rlfinflow.domain.model.FinFlowBasicAuthentication;
 import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -11,8 +10,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
-
-import java.util.HashSet;
 
 @RequiredArgsConstructor
 class UserBasicAuthProvider implements AuthenticationProvider {
@@ -27,7 +24,7 @@ class UserBasicAuthProvider implements AuthenticationProvider {
         if (!passwordEncoder.matches((String) authentication.getCredentials(), userDetails.getPassword())) {
             throw new BadCredentialsException("Incorrect username or password!");
         }
-        return new FinFlowBasicAuthentication(authentication.getName(), userDetails, new HashSet<>(userDetails.getAuthorities()), true);
+        return UsernamePasswordAuthenticationToken.authenticated(authentication.getPrincipal(), authentication.getCredentials(), userDetails.getAuthorities());
     }
 
     @Override

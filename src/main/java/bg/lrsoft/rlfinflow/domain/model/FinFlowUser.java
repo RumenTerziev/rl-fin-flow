@@ -3,10 +3,11 @@ package bg.lrsoft.rlfinflow.domain.model;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 @ToString
@@ -25,18 +26,21 @@ public class FinFlowUser implements UserDetails {
 
     private final String phoneNumber;
 
-    public FinFlowUser(String username, String password, String firstName, String lastName, String email, String phoneNumber) {
+    private final List<GrantedAuthority> authorities;
+
+    public FinFlowUser(String username, String password, String firstName, String lastName, String email, String phoneNumber, List<GrantedAuthority> authorities) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.authorities = authorities;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList("ROLE_USER");
+    public Collection<GrantedAuthority> getAuthorities() {
+        return Collections.unmodifiableList(authorities);
     }
 
     @Override

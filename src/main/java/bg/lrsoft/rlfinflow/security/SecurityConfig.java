@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
 @Configuration
 @EnableWebSecurity
@@ -32,8 +33,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/home").permitAll()
-                        .requestMatchers("/finances/**").hasRole("USER")
+                        .requestMatchers("/finances/**").authenticated()
                         .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED)
+                        .maximumSessions(1)
+                        .expiredUrl("/home"))
                 .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(withDefaults())
