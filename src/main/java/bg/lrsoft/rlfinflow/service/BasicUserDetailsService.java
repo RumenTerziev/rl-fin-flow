@@ -44,14 +44,12 @@ public class BasicUserDetailsService implements UserDetailsService {
     }
 
     public void initialize() {
-        FinFlowUser finFlowUser = new FinFlowUser(
+        finFlowUserRepository.add(new FinFlowUser(
                 firstUserUsername,
                 passwordEncoder.encode(firstUserPassword),
                 firstUserFirstName,
                 firstUserLastName,
                 firstUserEmail,
-                firstUserPhoneNumber);
-        finFlowUserRepository.add(finFlowUser);
-        System.out.println("Successfully registered user" + finFlowUser);
+                firstUserPhoneNumber));
     }
 }

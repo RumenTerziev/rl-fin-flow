@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.security.config;
+package bg.lrsoft.rlfinflow.security;
 
 import bg.lrsoft.rlfinflow.domain.model.FinFlowBasicAuthentication;
 import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;

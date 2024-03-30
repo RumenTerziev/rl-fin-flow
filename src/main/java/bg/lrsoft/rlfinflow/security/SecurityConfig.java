@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.security.config;
+package bg.lrsoft.rlfinflow.security;
 
 import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/home").permitAll()
-                        .requestMatchers("/finances").authenticated()
+                        .requestMatchers("/finances/**").authenticated()
                         .anyRequest().authenticated())
                 .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(AbstractHttpConfigurer::disable)
