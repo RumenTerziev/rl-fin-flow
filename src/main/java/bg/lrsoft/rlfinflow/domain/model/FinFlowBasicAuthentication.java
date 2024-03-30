@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class FinFlowBasicAuthentication implements Authentication {
 
@@ -15,11 +15,11 @@ public class FinFlowBasicAuthentication implements Authentication {
 
     private final UserDetails userDetails;
 
-    private final Set<GrantedAuthority> authorities;
+    private final List<GrantedAuthority> authorities;
 
     private final boolean isAuthenticated;
 
-    public FinFlowBasicAuthentication(String name, UserDetails userDetails, Set<GrantedAuthority> authorities, boolean isAuthenticated) {
+    public FinFlowBasicAuthentication(String name, UserDetails userDetails, List<GrantedAuthority> authorities, boolean isAuthenticated) {
         this.name = name;
         this.userDetails = userDetails;
         this.authorities = authorities;
@@ -28,7 +28,7 @@ public class FinFlowBasicAuthentication implements Authentication {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.unmodifiableSet(authorities);
+        return Collections.unmodifiableList(authorities);
     }
 
     @Override

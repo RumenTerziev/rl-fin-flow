@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+@Schema(description = "Represents the body of the request for converting currencies")
 public record CurrencyRequestDto(
-
         @Schema(
                 description = "The base currency that would be converted",
                 example = "BGN",

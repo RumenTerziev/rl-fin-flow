@@ -3,6 +3,7 @@ package bg.lrsoft.rlfinflow.domain.dto;
 import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "Represents the body of the request for converting currencies")
 public record CurrencyResponseDto(
         @Schema(
                 description = "The base currency that was converted",
