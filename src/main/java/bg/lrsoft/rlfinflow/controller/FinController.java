@@ -2,7 +2,7 @@ package bg.lrsoft.rlfinflow.controller;
 
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
-import bg.lrsoft.rlfinflow.service.CurrencyService;
+import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/finances")
 public class FinController {
 
-    private final CurrencyService currencyService;
+    private final ICurrencyService currencyService;
 
     @GetMapping
     public String getMyFinances() {
