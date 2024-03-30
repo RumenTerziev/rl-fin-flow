@@ -23,7 +23,7 @@ public class FinController {
         return "This page should be private!";
     }
 
-    @GetMapping("/dummy-path")
+    @GetMapping("/converter")
     public List<CurrencyResponseDto> exchange(@RequestBody CurrencyRequestDto currencyRequestDto) {
         return currencyService.processConvertRequest(currencyRequestDto);
     }

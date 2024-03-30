@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/home").permitAll()
-                        .requestMatchers("/finances/**").authenticated()
+                        .requestMatchers("/finances/**").hasRole("USER")
                         .anyRequest().authenticated())
                 .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(AbstractHttpConfigurer::disable)
