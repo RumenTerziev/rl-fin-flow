@@ -1,5 +1,6 @@
 package bg.lrsoft.rlfinflow.domain.model;
 
+import lombok.Setter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,19 +12,30 @@ import java.util.Objects;
 
 public class FinFlowBasicAuthentication implements Authentication {
 
-    private final String name;
+    private final Object principal;
 
-    private final UserDetails userDetails;
+    private final Object credentials;
 
     private final List<GrantedAuthority> authorities;
 
     private final boolean isAuthenticated;
 
-    public FinFlowBasicAuthentication(String name, UserDetails userDetails, List<GrantedAuthority> authorities, boolean isAuthenticated) {
-        this.name = name;
-        this.userDetails = userDetails;
+    private final UserDetails userDetails;
+
+    public FinFlowBasicAuthentication(Object principal, Object credentials, List<GrantedAuthority> authorities, UserDetails userDetails) {
+        this.principal = principal;
+        this.credentials = credentials;
         this.authorities = authorities;
-        this.isAuthenticated = isAuthenticated;
+        this.isAuthenticated = this.credentials == null;
+        this.userDetails = userDetails;
+    }
+
+    public static FinFlowBasicAuthentication unauthenticated(Object principal, Object credentials, UserDetails userDetails) {
+        return new FinFlowBasicAuthentication(principal, credentials, Collections.emptyList(), userDetails);
+    }
+
+    public static FinFlowBasicAuthentication authenticated(Object principal, Object credentials, List<GrantedAuthority> authorities, UserDetails userDetails) {
+        return new FinFlowBasicAuthentication(principal, credentials, authorities, userDetails);
     }
 
     @Override
@@ -33,7 +45,7 @@ public class FinFlowBasicAuthentication implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return userDetails.getPassword();
+        return credentials;
     }
 
     @Override
@@ -61,21 +73,21 @@ public class FinFlowBasicAuthentication implements Authentication {
         if (this == another) return true;
         if (another == null || getClass() != another.getClass()) return false;
         FinFlowBasicAuthentication user = (FinFlowBasicAuthentication) another;
-        return name.equals(user.name) && userDetails.equals(user.userDetails);
+        return userDetails.equals(user.userDetails);
     }
 
     @Override
     public String toString() {
-        return name.concat(userDetails.toString());
+        return principal.toString();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(principal);
     }
 
     @Override
     public String getName() {
-        return name;
+        return userDetails.getUsername();
     }
 }
