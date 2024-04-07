@@ -13,18 +13,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static java.net.URI.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.OK;
 
 public class FinanceManagementStepDefinition {
@@ -37,7 +35,7 @@ public class FinanceManagementStepDefinition {
 
     private final TestRestTemplate testRestTemplate = new TestRestTemplate();
 
-    private ResponseEntity<String> response;
+    private ResponseEntity<CurrencyResponseDto> response;
 
     @Value("${first.fin-flow.user.username}")
     private String firstUserUsername;
@@ -74,12 +72,11 @@ public class FinanceManagementStepDefinition {
 
 
         CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(baseCurrency, this.currencyToConvertTo, sumToConvert);
-        String path = "/api/v1/home";
+        URI uri = URI.create("/api/v1/home");
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(firstUserUsername, firstUserPassword);
-//        RequestEntity<CurrencyRequestDto> currencyRequest = new RequestEntity<>(currencyRequestDto, headers, POST, uri);
-//        response = testRestTemplate.exchange(currencyRequest, CurrencyResponseDto.class);
-//       response = testRestTemplate.getForObject(path, String.class, new HashMap<>());
+        RequestEntity<CurrencyRequestDto> currencyRequest = new RequestEntity<>(currencyRequestDto, headers, POST, uri);
+        response = testRestTemplate.exchange(currencyRequest, CurrencyResponseDto.class);
 
     }
 
