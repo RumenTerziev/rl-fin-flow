@@ -8,28 +8,34 @@ import bg.lrsoft.rlfinflow.domain.dto.OpenConverterCurrencyRespDto;
 import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import bg.lrsoft.rlfinflow.service.IRestService;
 import bg.lrsoft.rlfinflow.service.exception.NoResponseFromExternalApiWasReceived;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class CurrencyConvertService implements ICurrencyService {
 
     @Value("${open.exchange.currency.convertor.url}")
     private String currencyConvertorUrl;
 
+    @Autowired
+    @Qualifier("restRequestService")
     private final IRestService restService;
+
+    public CurrencyConvertService(IRestService restService) {
+        this.restService = restService;
+    }
 
     @Override
     public List<CurrencyResponseDto> processConvertRequest(CurrencyRequestDto requestDto) {
         String baseCurrency = requestDto.baseCurrency().toString();
-        String currencies = requestDto.currencyToConvert().toString();
+        String currencyToConvertTo = requestDto.currencyToConvert().toString();
 
         ResponseEntity<ExchangeRespDto> response = restService.getForEntity(
-                currencyConvertorUrl.formatted(currencies, baseCurrency),
+                resolveUrl(currencyToConvertTo, baseCurrency),
                 ExchangeRespDto.class);
         ExchangeRespDto responseBody = response.getBody();
 
@@ -41,6 +47,10 @@ public class CurrencyConvertService implements ICurrencyService {
                 .toList();
 
         return getCurrencyResponseDtos(requestDto, allCurrencyValues, baseCurrency);
+    }
+
+    public String resolveUrl(String currencyToConvertTo, String baseCurrency) {
+        return currencyConvertorUrl.formatted(currencyToConvertTo, baseCurrency);
     }
 
     private List<CurrencyResponseDto> getCurrencyResponseDtos(CurrencyRequestDto requestDto, List<OpenConverterCurrencyRespDto> allCurrencyValues, String baseCurrency) {

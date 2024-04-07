@@ -46,6 +46,8 @@ dependencies {
     testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+    implementation("com.h2database:h2:2.2.220")
+
 }
 
 tasks.withType<Test> {

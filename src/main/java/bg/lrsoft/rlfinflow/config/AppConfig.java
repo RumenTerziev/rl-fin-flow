@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class AppConfig {
 
-    @Bean
+    @Bean(name = "restRequestService")
     public IRestService restService() {
         return new RestRequestService(new RestTemplate());
     }
