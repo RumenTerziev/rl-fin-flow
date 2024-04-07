@@ -9,7 +9,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
@@ -43,8 +42,10 @@ public class FinanceManagementStepDefinition {
     @Value("${first.fin-flow.user.password}")
     private String firstUserPassword;
 
+    @Value("${open.exchange.currency.convertor.url}")
+    private String openExchangeUrl;
+
     @Autowired
-    @Qualifier("testRestRequestService")
     private IRestService restService;
 
     @Autowired
@@ -65,24 +66,21 @@ public class FinanceManagementStepDefinition {
     public void I_make_a_request_to_convert_them() {
         String currencyToConvertTo = this.currencyToConvertTo.toString();
         when(restService.getForEntity(
-                currencyService.resolveUrl(currencyToConvertTo, baseCurrency.toString()),
+                openExchangeUrl.formatted(currencyToConvertTo, baseCurrency.toString()),
                 Object.class))
                 .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
                         Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.51))), OK));
 
-
         CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(baseCurrency, this.currencyToConvertTo, sumToConvert);
-        URI uri = URI.create("/api/v1/home");
+        URI uri = URI.create(testRestTemplate.getRootUri() + "/finances/converter");
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(firstUserUsername, firstUserPassword);
         RequestEntity<CurrencyRequestDto> currencyRequest = new RequestEntity<>(currencyRequestDto, headers, POST, uri);
         response = testRestTemplate.exchange(currencyRequest, CurrencyResponseDto.class);
-
     }
 
     @Then("^the result is correct and status code is ([0-9]+)$")
     public void the_result_is_correct_and_status_code_is(int status) {
-
         assertEquals(status, response.getStatusCode().value());
     }
 }
