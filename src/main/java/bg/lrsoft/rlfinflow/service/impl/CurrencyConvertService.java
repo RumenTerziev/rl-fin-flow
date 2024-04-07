@@ -8,8 +8,7 @@ import bg.lrsoft.rlfinflow.domain.dto.OpenConverterCurrencyRespDto;
 import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import bg.lrsoft.rlfinflow.service.IRestService;
 import bg.lrsoft.rlfinflow.service.exception.NoResponseFromExternalApiWasReceived;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,18 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CurrencyConvertService implements ICurrencyService {
 
     @Value("${open.exchange.currency.convertor.url}")
     private String currencyConvertorUrl;
 
-    @Autowired
-    @Qualifier("restRequestService")
     private final IRestService restService;
-
-    public CurrencyConvertService(IRestService restService) {
-        this.restService = restService;
-    }
 
     @Override
     public List<CurrencyResponseDto> processConvertRequest(CurrencyRequestDto requestDto) {

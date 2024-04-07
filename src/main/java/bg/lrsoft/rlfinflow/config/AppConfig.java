@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class AppConfig {
 
-    @Bean(name = "restRequestService")
+    @Bean
     public IRestService restService() {
         return new RestRequestService(new RestTemplate());
     }
