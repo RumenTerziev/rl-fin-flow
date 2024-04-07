@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,40 +25,36 @@ public class CurrencyConvertService implements ICurrencyService {
     private final IRestService restService;
 
     @Override
-    public List<CurrencyResponseDto> processConvertRequest(CurrencyRequestDto requestDto) {
+    public CurrencyResponseDto processConvertRequest(CurrencyRequestDto requestDto) {
         String baseCurrency = requestDto.baseCurrency().toString();
-        String currencyToConvertTo = requestDto.currencyToConvert().toString();
+        String currencyToConvertTo = requestDto.currencyToConvertTo().toString();
 
         ResponseEntity<ExchangeRespDto> response = restService.getForEntity(
-                resolveUrl(currencyToConvertTo, baseCurrency),
+                currencyConvertorUrl.formatted(currencyToConvertTo, baseCurrency),
                 ExchangeRespDto.class);
         ExchangeRespDto responseBody = response.getBody();
 
         if (responseBody == null) {
-            throw new NoResponseFromExternalApiWasReceived("No response from external sources was received!!!");
+            throw new NoResponseFromExternalApiWasReceived("No response from external sources was received!");
         }
         List<OpenConverterCurrencyRespDto> allCurrencyValues = responseBody.data()
                 .values().stream()
                 .toList();
-
-        return getCurrencyResponseDtos(requestDto, allCurrencyValues, baseCurrency);
+        return getCurrencyResponseDto(requestDto, allCurrencyValues, baseCurrency);
     }
 
-    public String resolveUrl(String currencyToConvertTo, String baseCurrency) {
-        return currencyConvertorUrl.formatted(currencyToConvertTo, baseCurrency);
-    }
-
-    private List<CurrencyResponseDto> getCurrencyResponseDtos(CurrencyRequestDto requestDto, List<OpenConverterCurrencyRespDto> allCurrencyValues, String baseCurrency) {
-        List<CurrencyResponseDto> responseDtoList = new ArrayList<>();
+    private CurrencyResponseDto getCurrencyResponseDto(CurrencyRequestDto requestDto, List<OpenConverterCurrencyRespDto> allCurrencyValues, String baseCurrency) {
         for (OpenConverterCurrencyRespDto currencyRespDto : allCurrencyValues) {
-            double value = currencyRespDto.value();
-            double sumToConvert = requestDto.sumToConvert();
-            double convertedSum = sumToConvert * value;
-            responseDtoList.add(new CurrencyResponseDto(
-                    CurrencyCode.valueOf(baseCurrency),
-                    CurrencyCode.valueOf(currencyRespDto.code()),
-                    sumToConvert, convertedSum));
+            if (currencyRespDto.code().equals(requestDto.currencyToConvertTo().toString())) {
+                double value = currencyRespDto.value();
+                double sumToConvert = requestDto.sumToConvert();
+                double convertedSum = sumToConvert * value;
+                return new CurrencyResponseDto(
+                        CurrencyCode.valueOf(baseCurrency),
+                        CurrencyCode.valueOf(currencyRespDto.code()),
+                        sumToConvert, convertedSum);
+            }
         }
-        return responseDtoList;
+        throw new NoResponseFromExternalApiWasReceived("No response from external sources for the desired currency was received!");
     }
 }

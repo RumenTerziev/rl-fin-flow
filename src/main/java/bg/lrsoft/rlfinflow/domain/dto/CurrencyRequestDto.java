@@ -18,7 +18,7 @@ public record CurrencyRequestDto(
                 example = "USD",
                 requiredMode = REQUIRED
         )
-        CurrencyCode currencyToConvert,
+        CurrencyCode currencyToConvertTo,
         @Schema(
                 description = "The sum that would be converted",
                 example = "20.5",

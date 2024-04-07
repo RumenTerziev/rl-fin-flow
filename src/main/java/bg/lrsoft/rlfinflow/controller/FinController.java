@@ -14,8 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Tag(name = "Finances", description = "Finances operations APIs")
 @RequiredArgsConstructor
 @RestController
@@ -71,7 +69,7 @@ public class FinController {
             )
     })
     @PostMapping("/converter")
-    public List<CurrencyResponseDto> exchange(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
+    public CurrencyResponseDto exchange(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
         return currencyService.processConvertRequest(currencyRequestDto);
     }
 }

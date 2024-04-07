@@ -14,7 +14,7 @@ public record CurrencyResponseDto(
                 description = "The currency that the given amount was converted to",
                 example = "USD"
         )
-        CurrencyCode currency,
+        CurrencyCode currencyToConvertTo,
         @Schema(
                 description = "The sum that was converted",
                 example = "20.5"
