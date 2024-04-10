@@ -50,14 +50,15 @@ public class BasicUserDetailsService implements UserDetailsService {
     }
 
     public void initialize() {
-        finFlowUserRepository.add(new FinFlowUser(
+        FinFlowUser finFlowUser = new FinFlowUser(
                 firstUserUsername,
                 passwordEncoder.encode(firstUserPassword),
                 firstUserFirstName,
                 firstUserLastName,
                 firstUserEmail,
                 firstUserPhoneNumber,
-                AuthorityUtils.createAuthorityList(firstUserAuthorities)
-        ));
+                AuthorityUtils.createAuthorityList(firstUserAuthorities));
+        finFlowUserRepository.add(finFlowUser);
+        System.out.println("Added first user to db!!!" + finFlowUser);
     }
 }

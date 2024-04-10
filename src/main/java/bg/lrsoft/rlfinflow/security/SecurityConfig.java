@@ -14,7 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.Collections;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
 @Configuration
@@ -28,12 +27,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         return httpSecurity
-                .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/authenticate").permitAll()
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/finances").hasAuthority("USER")
                         .requestMatchers("/finances/converter").hasAuthority("USER")
@@ -43,8 +44,12 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .expiredUrl("/home"))
                 .authenticationManager(authManager(basicUserDetailsService))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(withDefaults())
+                .formLogin(formLogin -> formLogin.loginProcessingUrl("/authenticate")
+                        .loginPage("/login")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/home", true)
+                        .failureForwardUrl("/login?error=true"))
                 .build();
     }
 
