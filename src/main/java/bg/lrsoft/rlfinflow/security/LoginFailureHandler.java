@@ -10,7 +10,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -38,7 +37,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler, Authen
         response.setContentType(APPLICATION_JSON_VALUE);
 
         String errorMsg = "Error during authentication. Bad Credentials.";
-        LoginFailedErrorPayload exceptionDto = new LoginFailedErrorPayload(errorMsg, exceptionMsg, LocalDateTime.now());
+        LoginFailedErrorPayload exceptionDto = new LoginFailedErrorPayload(errorMsg, exceptionMsg);
         String responseJson = mapper.writeValueAsString(exceptionDto);
 
         response.getWriter().write(responseJson);

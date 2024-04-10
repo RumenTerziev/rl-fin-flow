@@ -15,8 +15,7 @@ public class FinFlowUserRepository {
 
     public Optional<FinFlowUser> findByUsername(String username) {
         if (finFlowUsers.containsKey(username)) {
-            FinFlowUser value = finFlowUsers.get(username);
-            return Optional.of(value);
+            return Optional.of(finFlowUsers.get(username));
         }
         return Optional.empty();
     }

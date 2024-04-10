@@ -11,15 +11,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import java.util.Collections;
 
-import static org.apache.catalina.webresources.TomcatURLStreamHandlerFactory.disable;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
 @Configuration
@@ -52,6 +48,7 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.loginProcessingUrl("/authenticate")
                         .usernameParameter("username")
                         .passwordParameter("password")
+                        .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler()))
                 .build();
     }
