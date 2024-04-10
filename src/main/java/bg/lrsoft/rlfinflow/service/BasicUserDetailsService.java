@@ -3,6 +3,7 @@ package bg.lrsoft.rlfinflow.service;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicUserDetailsService implements UserDetailsService {
@@ -59,6 +61,6 @@ public class BasicUserDetailsService implements UserDetailsService {
                 firstUserPhoneNumber,
                 AuthorityUtils.createAuthorityList(firstUserAuthorities));
         finFlowUserRepository.add(finFlowUser);
-        System.out.println("Added first user to db!!!" + finFlowUser);
+        log.info("Added first user to db!!! {}", finFlowUser);
     }
 }

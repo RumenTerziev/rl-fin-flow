@@ -3,6 +3,7 @@ package bg.lrsoft.rlfinflow.security;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowBasicAuthentication;
 import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 class UserBasicAuthProvider implements AuthenticationProvider {
 
@@ -28,6 +30,7 @@ class UserBasicAuthProvider implements AuthenticationProvider {
         if (!passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
             throw new BadCredentialsException("Incorrect username or password!");
         }
+        log.info("Authenticated user: {}", userDetails.getUsername());
         return FinFlowBasicAuthentication.authenticated(userDetails.getUsername(), userDetails.getPassword(), (List<GrantedAuthority>) userDetails.getAuthorities(), userDetails);
     }
 

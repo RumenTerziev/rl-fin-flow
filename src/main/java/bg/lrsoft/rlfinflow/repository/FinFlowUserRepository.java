@@ -14,8 +14,11 @@ public class FinFlowUserRepository {
     private final Map<String, FinFlowUser> finFlowUsers = new HashMap<>();
 
     public Optional<FinFlowUser> findByUsername(String username) {
-        FinFlowUser finFlowUser = finFlowUsers.get(username);
-        return Optional.ofNullable(finFlowUser);
+        if (finFlowUsers.containsKey(username)) {
+            FinFlowUser value = finFlowUsers.get(username);
+            return Optional.of(value);
+        }
+        return Optional.empty();
     }
 
     public boolean existsByUsername(String username) {
