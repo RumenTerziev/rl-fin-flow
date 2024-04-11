@@ -1,31 +1,37 @@
 package bg.lrsoft.rlfinflow.domain.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static lombok.AccessLevel.PRIVATE;
+
 @Getter
 @ToString
+@NoArgsConstructor(access = PRIVATE)
 public class FinFlowUser implements UserDetails {
 
-    private final String username;
+    private String username;
 
     @ToString.Exclude
-    private final String password;
+    private String password;
 
-    private final String firstName;
+    private String firstName;
 
-    private final String lastName;
+    private String lastName;
 
-    private final String email;
+    private String email;
 
-    private final String phoneNumber;
+    private String phoneNumber;
 
-    private final List<GrantedAuthority> authorities;
+    private List<GrantedAuthority> authorities;
 
     public FinFlowUser(String username, String password, String firstName, String lastName, String email, String phoneNumber, List<GrantedAuthority> authorities) {
         this.username = username;
@@ -35,6 +41,18 @@ public class FinFlowUser implements UserDetails {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.authorities = authorities;
+    }
+
+    public void updateAuthorities(String... authorities) {
+        this.authorities = new ArrayList<>();
+        this.authorities.addAll(AuthorityUtils.createAuthorityList(authorities));
+    }
+
+    public void updatePassword(String password) {
+        if (password.isBlank()) {
+            throw new IllegalArgumentException("Password cannot be blank!");
+        }
+        this.password = password;
     }
 
     @Override

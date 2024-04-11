@@ -1,6 +1,6 @@
 package bg.lrsoft.rlfinflow.init;
 
-import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;
+import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class Initializer implements CommandLineRunner {
 
-    private final BasicUserDetailsService basicUserDetailsService;
+    private final FinFlowUserService basicUserDetailsService;
 
     @Override
     public void run(String... args) throws Exception {

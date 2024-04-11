@@ -1,5 +1,7 @@
 package bg.lrsoft.rlfinflow.service;
 
+import bg.lrsoft.rlfinflow.config.mapper.FinFlowUserMapper;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserImportDto;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BasicUserDetailsService implements UserDetailsService {
+public class FinFlowUserService implements UserDetailsService {
 
     @Value("${first.fin-flow.user.username}")
     private String firstUserUsername;
@@ -44,6 +46,15 @@ public class BasicUserDetailsService implements UserDetailsService {
     private final FinFlowUserRepository finFlowUserRepository;
 
     private final PasswordEncoder passwordEncoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+
+    private final FinFlowUserMapper mapper;
+
+    public void registerUser(FinFlowUserImportDto finFlowUserImportDto) {
+        FinFlowUser finFlowUser = mapper.mapToEntity(finFlowUserImportDto);
+        finFlowUser.updateAuthorities("ROLE_USER");
+        finFlowUser.updatePassword(passwordEncoder.encode(finFlowUserImportDto.password()));
+        finFlowUserRepository.add(finFlowUser);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

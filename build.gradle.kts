@@ -24,6 +24,7 @@ repositories {
 }
 
 val cucumberVersion = "7.14.1"
+val mapstructVersion = "1.5.5.Final"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -33,6 +34,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web-services")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.mapstruct:mapstruct:$mapstructVersion")
+    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     compileOnly("org.projectlombok:lombok")

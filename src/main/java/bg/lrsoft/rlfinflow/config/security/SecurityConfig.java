@@ -1,6 +1,6 @@
-package bg.lrsoft.rlfinflow.security;
+package bg.lrsoft.rlfinflow.config.security;
 
-import bg.lrsoft.rlfinflow.service.BasicUserDetailsService;
+import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.IF_
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final BasicUserDetailsService basicUserDetailsService;
+    private final FinFlowUserService basicUserDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -33,17 +33,18 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/users/register").permitAll()
                         .requestMatchers("/authenticate").permitAll()
                         .requestMatchers("/home").permitAll()
-                        .requestMatchers("/finances").hasAuthority("USER")
-                        .requestMatchers("/finances/converter").hasAuthority("USER")
-                        .requestMatchers("/swagger-ui/**").hasAuthority("USER")
-                        .requestMatchers("/v3/api-docs/**").hasAuthority("USER"))
+                        .requestMatchers("/finances").hasAuthority("ROLE_USER")
+                        .requestMatchers("/finances/converter").hasAuthority("ROLE_USER")
+                        .requestMatchers("/swagger-ui/**").hasAuthority("ROLE_USER")
+                        .requestMatchers("/v3/api-docs/**").hasAuthority("ROLE_USER")
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED)
-                        .maximumSessions(1))
+                        .maximumSessions(1)
+                        .expiredUrl("/login?expired"))
                 .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(formLogin -> formLogin.loginProcessingUrl("/authenticate")
                         .usernameParameter("username")
@@ -54,7 +55,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authManager(BasicUserDetailsService basicUserDetailsService) {
+    public AuthenticationManager authManager(FinFlowUserService basicUserDetailsService) {
         return new ProviderManager(Collections.singletonList(new UserBasicAuthProvider(basicUserDetailsService)));
     }
 

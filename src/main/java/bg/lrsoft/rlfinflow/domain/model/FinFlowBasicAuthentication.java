@@ -2,6 +2,7 @@ package bg.lrsoft.rlfinflow.domain.model;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -33,8 +34,8 @@ public class FinFlowBasicAuthentication implements Authentication {
         return new FinFlowBasicAuthentication(principal, credentials, Collections.emptyList(), userDetails);
     }
 
-    public static FinFlowBasicAuthentication authenticated(Object principal, Object credentials, List<GrantedAuthority> authorities, UserDetails userDetails) {
-        return new FinFlowBasicAuthentication(principal, credentials, authorities, userDetails);
+    public static FinFlowBasicAuthentication authenticated(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities, UserDetails userDetails) {
+        return new FinFlowBasicAuthentication(principal, credentials, mapAuthorities(authorities), userDetails);
     }
 
     @Override
@@ -88,5 +89,11 @@ public class FinFlowBasicAuthentication implements Authentication {
     @Override
     public String getName() {
         return userDetails.getUsername();
+    }
+
+    private static List<GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        return AuthorityUtils.createAuthorityList(authorities.stream()
+                .map(GrantedAuthority::toString)
+                .toList());
     }
 }

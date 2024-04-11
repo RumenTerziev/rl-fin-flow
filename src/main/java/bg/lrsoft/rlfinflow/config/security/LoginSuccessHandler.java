@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.security;
+package bg.lrsoft.rlfinflow.config.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

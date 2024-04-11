@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.propconfig;
+package bg.lrsoft.rlfinflow.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;
