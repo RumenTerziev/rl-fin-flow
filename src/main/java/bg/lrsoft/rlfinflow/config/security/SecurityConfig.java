@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import java.util.Collections;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
 @Configuration
@@ -35,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/users/register").permitAll()
-                        .requestMatchers("/authenticate").permitAll()
+                        .requestMatchers("/users/authenticate").permitAll()
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/finances").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/converter").hasAuthority("ROLE_USER")
@@ -43,14 +44,18 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED)
-                        .maximumSessions(1)
+                        .maximumSessions(2)
                         .expiredUrl("/login?expired"))
                 .authenticationManager(authManager(basicUserDetailsService))
-                .formLogin(formLogin -> formLogin.loginProcessingUrl("/authenticate")
+                .formLogin(formLogin -> formLogin.loginProcessingUrl("/users/authenticate")
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler()))
+                .logout(logout -> logout.logoutUrl("/users/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(SC_OK))
+                        .invalidateHttpSession(true)
+                        .permitAll())
                 .build();
     }
 

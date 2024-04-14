@@ -2,8 +2,9 @@ package bg.lrsoft.rlfinflow.cucumber.steps;
 
 import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
 import bg.lrsoft.rlfinflow.domain.dto.*;
+import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
+import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
 import bg.lrsoft.rlfinflow.service.IRestService;
-import bg.lrsoft.rlfinflow.service.impl.CurrencyConvertService;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -11,17 +12,19 @@ import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.OK;
 
 public class FinanceManagementStepDefinition {
@@ -32,15 +35,30 @@ public class FinanceManagementStepDefinition {
 
     private double sumToConvert;
 
-    private final TestRestTemplate testRestTemplate = new TestRestTemplate();
-
     private ResponseEntity<CurrencyResponseDto> response;
+
+    private final PasswordEncoder passwordEncoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 
     @Value("${first.fin-flow.user.username}")
     private String firstUserUsername;
 
     @Value("${first.fin-flow.user.password}")
     private String firstUserPassword;
+
+    @Value("${first.fin-flow.user.first-name}")
+    private String firstUserFirstName;
+
+    @Value("${first.fin-flow.user.last-name}")
+    private String firstUserLastName;
+
+    @Value("${first.fin-flow.user.email}")
+    private String firstUserEmail;
+
+    @Value("${first.fin-flow.user.phone-number}")
+    private String firstUserPhoneNumber;
+
+    @Value("${first.fin-flow.user.authorities}")
+    private List<String> firstUserAuthorities;
 
     @Value("${open.exchange.currency.convertor.url}")
     private String openExchangeUrl;
@@ -49,7 +67,10 @@ public class FinanceManagementStepDefinition {
     private IRestService restService;
 
     @Autowired
-    private CurrencyConvertService currencyService;
+    private TestRestTemplate testRestTemplate;
+
+    @Autowired
+    private FinFlowUserRepository finFlowUserRepository;
 
     @Given("^([0-9]+(?:\\.[0-9]+)?)\\s+([A-Z]+)\\s+to\\s+convert$")
     public void convert(double sumToConvert, String baseCurrency) {
@@ -64,23 +85,59 @@ public class FinanceManagementStepDefinition {
 
     @When("^I make a request to convert them$")
     public void I_make_a_request_to_convert_them() {
+
+        initialize();
+        ResponseEntity<Void> loginResponse = login();
+
         String currencyToConvertTo = this.currencyToConvertTo.toString();
+
         when(restService.getForEntity(
-                openExchangeUrl.formatted(currencyToConvertTo, baseCurrency.toString()),
-                Object.class))
+                openExchangeUrl.formatted(currencyToConvertTo, baseCurrency),
+                ExchangeRespDto.class))
                 .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
-                        Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.51))), OK));
+                        Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.50))), OK));
+
+        String url = "/finances/converter";
+
+        HttpHeaders postHeaders = new HttpHeaders();
+        postHeaders.setContentType(MediaType.APPLICATION_JSON);
+        postHeaders.add(HttpHeaders.COOKIE, loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
 
         CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(baseCurrency, this.currencyToConvertTo, sumToConvert);
-        URI uri = URI.create(testRestTemplate.getRootUri() + "/finances/converter");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(firstUserUsername, firstUserPassword);
-        RequestEntity<CurrencyRequestDto> currencyRequest = new RequestEntity<>(currencyRequestDto, headers, POST, uri);
-        response = testRestTemplate.exchange(currencyRequest, CurrencyResponseDto.class);
+
+        HttpEntity<CurrencyRequestDto> postRequest = new HttpEntity<>(currencyRequestDto, postHeaders);
+
+        response = testRestTemplate.exchange(url, HttpMethod.POST, postRequest, CurrencyResponseDto.class);
     }
 
     @Then("^the result is correct and status code is ([0-9]+)$")
     public void the_result_is_correct_and_status_code_is(int status) {
         assertEquals(status, response.getStatusCode().value());
+    }
+
+    private void initialize() {
+        FinFlowUser finFlowUser = new FinFlowUser(
+                firstUserUsername,
+                passwordEncoder.encode(firstUserPassword),
+                firstUserFirstName,
+                firstUserLastName,
+                firstUserEmail,
+                firstUserPhoneNumber,
+                AuthorityUtils.createAuthorityList(firstUserAuthorities));
+        finFlowUserRepository.add(finFlowUser);
+        System.out.printf("Added first user to db!!! %s%n", finFlowUser);
+    }
+
+    private ResponseEntity<Void> login() {
+        MultiValueMap<String, String> loginParams = new LinkedMultiValueMap<>();
+        loginParams.add("username", firstUserUsername);
+        loginParams.add("password", firstUserPassword);
+
+        HttpHeaders loginHeaders = new HttpHeaders();
+        loginHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> loginRequest = new HttpEntity<>(loginParams, loginHeaders);
+
+        return testRestTemplate.postForEntity("/users/authenticate", loginRequest, Void.class);
     }
 }
