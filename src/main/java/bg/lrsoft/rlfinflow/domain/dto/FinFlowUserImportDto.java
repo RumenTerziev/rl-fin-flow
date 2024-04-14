@@ -7,44 +7,43 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "Represents a user registered in the fin flow application")
 public record FinFlowUserImportDto(
 
-        //ToDo fix examples
         @Schema(
-                description = "Error message",
-                example = "No response from external sources was received!!!"
+                description = "Username of the user",
+                example = "tommy"
         )
         @NotBlank
         String username,
 
         @Schema(
-                description = "Error message",
-                example = "No response from external sources was received!!!"
+                description = "Password of the user",
+                example = "asd123dsa"
         )
         @NotBlank
         String password,
 
         @Schema(
-                description = "Error message",
-                example = "No response from external sources was received!!!"
+                description = "First name of the user",
+                example = "Tom"
         )
         @NotBlank
         String firstName,
 
         @Schema(
-                description = "Error message",
-                example = "No response from external sources was received!!!"
+                description = "Last name of the user",
+                example = "Jones"
         )
         String lastName,
 
         @Schema(
-                description = "Error message",
-                example = "No response from external sources was received!!!"
+                description = "Email of the user",
+                example = "tommyj@example.com"
         )
         @Email
         String email,
 
         @Schema(
-                description = "Error message",
-                example = "No response from external sources was received!!!"
+                description = "Phone number of the user",
+                example = "088112233"
         )
         String phoneNumber
 ) {
