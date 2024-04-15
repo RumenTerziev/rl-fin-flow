@@ -1,6 +1,7 @@
 package bg.lrsoft.rlfinflow.config.mapper;
 
-import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserImportDto;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserRegisterDto;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserResponseDto;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,5 +15,14 @@ public interface FinFlowUserMapper {
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    FinFlowUser mapToEntity(FinFlowUserImportDto finFlowUserImportDto);
+    FinFlowUser mapToEntity(FinFlowUserRegisterDto finFlowUserImportDto);
+
+    default FinFlowUserResponseDto mapToResponseDto(FinFlowUser finFlowUser) {
+        return new FinFlowUserResponseDto(
+                finFlowUser.getUsername(),
+                finFlowUser.getFirstName(),
+                finFlowUser.getLastName(),
+                finFlowUser.getEmail(),
+                finFlowUser.getPhoneNumber());
+    }
 }

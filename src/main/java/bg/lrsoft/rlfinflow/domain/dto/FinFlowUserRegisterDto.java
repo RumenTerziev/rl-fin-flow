@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Represents a user registered in the fin flow application")
-public record FinFlowUserImportDto(
+public record FinFlowUserRegisterDto(
 
         @Schema(
                 description = "Username of the user",

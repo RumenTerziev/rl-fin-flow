@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/register").permitAll()
                         .requestMatchers("/users/authenticate").permitAll()
                         .requestMatchers("/home").permitAll()
+                        .requestMatchers("/users/profile").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/converter").hasAuthority("ROLE_USER")
                         .requestMatchers("/swagger-ui/**").hasAuthority("ROLE_USER")

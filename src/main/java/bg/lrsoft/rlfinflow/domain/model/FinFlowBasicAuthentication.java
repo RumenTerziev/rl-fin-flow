@@ -55,7 +55,7 @@ public class FinFlowBasicAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return userDetails.toString();
+        return userDetails;
     }
 
     @Override

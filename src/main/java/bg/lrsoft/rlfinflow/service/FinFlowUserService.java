@@ -1,13 +1,16 @@
 package bg.lrsoft.rlfinflow.service;
 
 import bg.lrsoft.rlfinflow.config.mapper.FinFlowUserMapper;
-import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserImportDto;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserRegisterDto;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserResponseDto;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
+import bg.lrsoft.rlfinflow.service.exception.NoUserLoggedInException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -49,17 +52,20 @@ public class FinFlowUserService implements UserDetailsService {
 
     private final FinFlowUserMapper mapper;
 
-    public void registerUser(FinFlowUserImportDto finFlowUserImportDto) {
+    public void registerUser(FinFlowUserRegisterDto finFlowUserImportDto) {
         FinFlowUser finFlowUser = mapper.mapToEntity(finFlowUserImportDto);
         finFlowUser.updateAuthorities("ROLE_USER");
         finFlowUser.updatePassword(passwordEncoder.encode(finFlowUserImportDto.password()));
         finFlowUserRepository.add(finFlowUser);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return finFlowUserRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username %s not found!".formatted(username)));
+    public FinFlowUserResponseDto getMyProfile() {
+        Object details = SecurityContextHolder.getContext().getAuthentication().getDetails();
+        if (details instanceof UserDetails userDetails) {
+            FinFlowUser finFlowUser = (FinFlowUser) userDetails;
+            return mapper.mapToResponseDto(finFlowUser);
+        }
+        throw new NoUserLoggedInException();
     }
 
     public void initialize() {
@@ -73,5 +79,11 @@ public class FinFlowUserService implements UserDetailsService {
                 AuthorityUtils.createAuthorityList(firstUserAuthorities));
         finFlowUserRepository.add(finFlowUser);
         log.info("Added first user to db!!! {}", finFlowUser);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return finFlowUserRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username %s not found!".formatted(username)));
     }
 }
