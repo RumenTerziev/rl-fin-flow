@@ -5,7 +5,7 @@ import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import bg.lrsoft.rlfinflow.service.IRestService;
 import bg.lrsoft.rlfinflow.testconfig.TestConfig;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -49,7 +50,7 @@ public class FinControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private Gson gson;
+    private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser(username = "testuser", password = "1234", roles = "USER")
@@ -58,24 +59,31 @@ public class FinControllerTest {
         String url = "/finances/converter";
         String currencyToConvertTo = "EUR";
         String baseCurrency = "BGN";
+        double sumToConvert = 20.0;
+        double expectedResultSum = 10.0;
+        double mockedExchangeRate = 0.50;
 
         when(restService.getForEntity(
                 openExchangeUrl.formatted(currencyToConvertTo, baseCurrency),
                 ExchangeRespDto.class))
                 .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
-                        Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.50))), OK));
+                        Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, mockedExchangeRate))), OK));
 
-        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(BGN, EUR, 20.0);
+        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(BGN, EUR, sumToConvert);
 
-        CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, 20, 10);
+        CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, sumToConvert, expectedResultSum);
         when(currencyService.processConvertRequest(currencyRequestDto)).thenReturn(responseDto);
 
         //When
         ResultActions result = mockMvc.perform(post(url)
                 .contentType(APPLICATION_JSON)
-                .content(gson.toJson(currencyRequestDto)));
+                .content(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(currencyRequestDto)));
 
         //Then
-        result.andExpect(status().isOk());
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.baseCurrency").value(baseCurrency))
+                .andExpect(jsonPath("$.currencyToConvertTo").value(currencyToConvertTo))
+                .andExpect(jsonPath("$.sumToConvert").value(sumToConvert))
+                .andExpect(jsonPath("$.resultSum").value(expectedResultSum));
     }
 }

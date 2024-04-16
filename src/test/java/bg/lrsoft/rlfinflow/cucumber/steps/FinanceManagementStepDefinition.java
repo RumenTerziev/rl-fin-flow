@@ -5,6 +5,8 @@ import bg.lrsoft.rlfinflow.domain.dto.*;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
 import bg.lrsoft.rlfinflow.service.IRestService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -23,7 +25,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static bg.lrsoft.rlfinflow.utils.TestFileUtils.readFileAsString;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -72,6 +77,9 @@ public class FinanceManagementStepDefinition {
     @Autowired
     private FinFlowUserRepository finFlowUserRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Given("^([0-9]+(?:\\.[0-9]+)?)\\s+([A-Z]+)\\s+to\\s+convert$")
     public void convert(double sumToConvert, String baseCurrency) {
         this.baseCurrency = CurrencyCode.valueOf(baseCurrency);
@@ -91,11 +99,10 @@ public class FinanceManagementStepDefinition {
 
         String currencyToConvertTo = this.currencyToConvertTo.toString();
 
-        when(restService.getForEntity(
-                openExchangeUrl.formatted(currencyToConvertTo, baseCurrency),
-                ExchangeRespDto.class))
+        when(restService.getForEntity(anyString(), eq(ExchangeRespDto.class)))
                 .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
-                        Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.50))), OK));
+                        Map.of(currencyToConvertTo,
+                                new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.50))), OK));
 
         String url = "/finances/converter";
 
@@ -111,8 +118,11 @@ public class FinanceManagementStepDefinition {
     }
 
     @Then("^the result is correct and status code is ([0-9]+)$")
-    public void the_result_is_correct_and_status_code_is(int status) {
-        assertEquals(status, response.getStatusCode().value());
+    public void the_result_is_correct_and_status_code_is(int status) throws JsonProcessingException {
+        String stringPath = "src/test/resources/testdata/convertedCurrency.json";
+        String body = readFileAsString(stringPath);
+        assertThat(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getBody())).isEqualTo(body);
+        assertThat(status).isEqualTo(response.getStatusCode().value());
     }
 
     private void initialize() {
