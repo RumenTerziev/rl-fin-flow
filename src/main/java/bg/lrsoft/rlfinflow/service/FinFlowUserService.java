@@ -52,11 +52,12 @@ public class FinFlowUserService implements UserDetailsService {
 
     private final FinFlowUserMapper mapper;
 
-    public void registerUser(FinFlowUserRegisterDto finFlowUserImportDto) {
+    public FinFlowUserResponseDto registerUser(FinFlowUserRegisterDto finFlowUserImportDto) {
         FinFlowUser finFlowUser = mapper.mapToEntity(finFlowUserImportDto);
         finFlowUser.updateAuthorities("ROLE_USER");
         finFlowUser.updatePassword(passwordEncoder.encode(finFlowUserImportDto.password()));
-        finFlowUserRepository.add(finFlowUser);
+        FinFlowUser savedUser = finFlowUserRepository.add(finFlowUser);
+        return mapper.mapToResponseDto(savedUser);
     }
 
     public FinFlowUserResponseDto getMyProfile() {

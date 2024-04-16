@@ -2,7 +2,6 @@ package bg.lrsoft.rlfinflow.domain.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,13 +13,11 @@ import java.util.List;
 import static lombok.AccessLevel.PRIVATE;
 
 @Getter
-@ToString
 @NoArgsConstructor(access = PRIVATE)
 public class FinFlowUser implements UserDetails {
 
     private String username;
 
-    @ToString.Exclude
     private String password;
 
     private String firstName;

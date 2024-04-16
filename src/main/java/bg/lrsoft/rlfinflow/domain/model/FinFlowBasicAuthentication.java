@@ -12,15 +12,21 @@ import java.util.Objects;
 
 public class FinFlowBasicAuthentication implements Authentication {
 
-    private final Object principal;
+    private Object principal;
 
     private final Object credentials;
 
     private final List<GrantedAuthority> authorities;
 
-    private final boolean isAuthenticated;
+    private boolean isAuthenticated;
 
-    private final UserDetails userDetails;
+    private UserDetails userDetails;
+
+
+    public FinFlowBasicAuthentication(Object credentials, List<GrantedAuthority> authorities) {
+        this.credentials = credentials;
+        this.authorities = authorities;
+    }
 
     public FinFlowBasicAuthentication(Object principal, Object credentials, List<GrantedAuthority> authorities, UserDetails userDetails) {
         this.principal = principal;
@@ -30,12 +36,12 @@ public class FinFlowBasicAuthentication implements Authentication {
         this.userDetails = userDetails;
     }
 
-    public static FinFlowBasicAuthentication unauthenticated(Object principal, Object credentials, UserDetails userDetails) {
-        return new FinFlowBasicAuthentication(principal, credentials, Collections.emptyList(), userDetails);
+    public static FinFlowBasicAuthentication unauthenticated(String password) {
+        return new FinFlowBasicAuthentication(password, Collections.emptyList());
     }
 
-    public static FinFlowBasicAuthentication authenticated(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities, UserDetails userDetails) {
-        return new FinFlowBasicAuthentication(principal, credentials, mapAuthorities(authorities), userDetails);
+    public static FinFlowBasicAuthentication authenticated(Object principal, String password, Collection<? extends GrantedAuthority> authorities, UserDetails userDetails) {
+        return new FinFlowBasicAuthentication(principal, password, mapAuthorities(authorities), userDetails);
     }
 
     @Override
@@ -78,7 +84,7 @@ public class FinFlowBasicAuthentication implements Authentication {
 
     @Override
     public String toString() {
-        return principal.toString();
+        return principal == null ? "" : principal.toString();
     }
 
     @Override
@@ -92,8 +98,6 @@ public class FinFlowBasicAuthentication implements Authentication {
     }
 
     private static List<GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        return AuthorityUtils.createAuthorityList(authorities.stream()
-                .map(GrantedAuthority::toString)
-                .toList());
+        return AuthorityUtils.createAuthorityList(authorities.stream().map(GrantedAuthority::toString).toList());
     }
 }

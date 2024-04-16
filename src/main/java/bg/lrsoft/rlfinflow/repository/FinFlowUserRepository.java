@@ -28,8 +28,9 @@ public class FinFlowUserRepository {
         return List.copyOf(finFlowUsers.values());
     }
 
-    public void add(FinFlowUser finFlowUser) {
+    public FinFlowUser add(FinFlowUser finFlowUser) {
         finFlowUsers.put(finFlowUser.getUsername(), finFlowUser);
+        return finFlowUser;
     }
 
     public void remove(String username) {
