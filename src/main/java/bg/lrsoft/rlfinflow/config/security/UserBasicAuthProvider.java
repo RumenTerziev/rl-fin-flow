@@ -1,6 +1,5 @@
 package bg.lrsoft.rlfinflow.config.security;
 
-import bg.lrsoft.rlfinflow.domain.model.FinFlowBasicAuthentication;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

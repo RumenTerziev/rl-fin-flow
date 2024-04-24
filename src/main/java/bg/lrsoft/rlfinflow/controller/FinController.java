@@ -3,6 +3,7 @@ package bg.lrsoft.rlfinflow.controller;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
 import bg.lrsoft.rlfinflow.domain.dto.ErrorPayloadDto;
+import bg.lrsoft.rlfinflow.domain.model.Conversion;
 import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Finances", description = "Finances operations APIs")
 @RequiredArgsConstructor
@@ -71,5 +74,15 @@ public class FinController {
     @PostMapping("/converter")
     public CurrencyResponseDto exchange(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
         return currencyService.processConvertRequest(currencyRequestDto);
+    }
+
+    @GetMapping("/all-conversions")
+    public List<Conversion> getConversions() {
+        return currencyService.findAll();
+    }
+
+    @GetMapping("/my-conversions")
+    public List<Conversion> getMyConversions() {
+        return currencyService.findByAuthenticatedUser();
     }
 }

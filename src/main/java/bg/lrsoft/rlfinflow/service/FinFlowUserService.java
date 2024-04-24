@@ -9,7 +9,9 @@ import bg.lrsoft.rlfinflow.service.exception.NoUserLoggedInException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -80,6 +83,15 @@ public class FinFlowUserService implements UserDetailsService {
                 AuthorityUtils.createAuthorityList(firstUserAuthorities));
         finFlowUserRepository.add(finFlowUser);
         log.info("Added first user to db!!! {}", finFlowUser);
+    }
+
+    public FinFlowUser getAuthenticatedUser() {
+        return Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .map(Authentication::getPrincipal)
+                .filter(FinFlowUser.class::isInstance)
+                .map(FinFlowUser.class::cast)
+                .orElseThrow(NoUserLoggedInException::new);
     }
 
     @Override

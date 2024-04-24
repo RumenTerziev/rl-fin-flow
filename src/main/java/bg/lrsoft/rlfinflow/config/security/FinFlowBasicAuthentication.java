@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.domain.model;
+package bg.lrsoft.rlfinflow.config.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
