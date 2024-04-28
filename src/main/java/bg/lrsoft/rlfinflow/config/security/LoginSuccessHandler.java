@@ -17,5 +17,8 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         log.info("Successfully logged in as {}", authentication.getName());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"username\": \"" + authentication.getName() + "\"}");
     }
 }
