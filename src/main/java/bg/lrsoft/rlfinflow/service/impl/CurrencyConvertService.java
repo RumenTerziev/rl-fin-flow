@@ -55,7 +55,7 @@ public class CurrencyConvertService implements ICurrencyService {
     @Override
     public List<ConversionResponseDto> findAll() {
         return conversionRepository.findAll().stream()
-                .map(conversionMapper::mapToDto)
+                .map(conversionMapper::mapToResponseDto)
                 .toList();
     }
 
@@ -64,7 +64,7 @@ public class CurrencyConvertService implements ICurrencyService {
         String loggedUser = finFlowUserService.getAuthenticatedUser().getUsername();
         Page<Conversion> currentPage = conversionRepository.findAllByLoggedUsername(loggedUser, pageable);
         List<ConversionResponseDto> items = currentPage.stream()
-                .map(conversionMapper::mapToDto)
+                .map(conversionMapper::mapToResponseDto)
                 .toList();
         long count = conversionRepository.countByLoggedUsername(loggedUser);
         return new PageResult<>(items, count);

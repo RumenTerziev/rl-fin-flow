@@ -13,7 +13,7 @@ import static org.mapstruct.ReportingPolicy.IGNORE;
 @Mapper(componentModel = SPRING, injectionStrategy = CONSTRUCTOR, unmappedTargetPolicy = IGNORE)
 public interface ConversionMapper {
 
-    default ConversionResponseDto mapToDto(Conversion conversion) {
+    default ConversionResponseDto mapToResponseDto(Conversion conversion) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return new ConversionResponseDto(
                 conversion.getBaseCurrency(),

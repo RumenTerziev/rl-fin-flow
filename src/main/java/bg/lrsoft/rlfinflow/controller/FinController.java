@@ -4,7 +4,6 @@ import bg.lrsoft.rlfinflow.domain.dto.ConversionResponseDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
 import bg.lrsoft.rlfinflow.domain.dto.ErrorPayloadDto;
-import bg.lrsoft.rlfinflow.domain.model.Conversion;
 import bg.lrsoft.rlfinflow.domain.model.PageResult;
 import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
