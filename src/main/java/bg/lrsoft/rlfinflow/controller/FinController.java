@@ -30,21 +30,6 @@ public class FinController {
 
     private final ICurrencyService currencyService;
 
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Success"
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized"
-            )
-    })
-    @GetMapping
-    public String getMyFinances() {
-        return "This page should be private!";
-    }
-
     @Operation(description = "Convert currencies")
     @ApiResponses(value = {
             @ApiResponse(
