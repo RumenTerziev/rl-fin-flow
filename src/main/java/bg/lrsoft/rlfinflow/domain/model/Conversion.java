@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -32,11 +33,14 @@ public class Conversion {
 
     private double resultSum;
 
+    private LocalDateTime createdAt;
+
     public Conversion(String loggedUsername, CurrencyCode baseCurrency, CurrencyCode currencyToConvertTo, double sumToConvert, double resultSum) {
         this.loggedUsername = loggedUsername;
         this.baseCurrency = baseCurrency;
         this.currencyToConvertTo = currencyToConvertTo;
         this.sumToConvert = sumToConvert;
         this.resultSum = resultSum;
+        this.createdAt = LocalDateTime.now();
     }
 }

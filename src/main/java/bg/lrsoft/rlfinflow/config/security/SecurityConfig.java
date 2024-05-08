@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/register").permitAll()
                         .requestMatchers("/users/profile").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/converter").hasAuthority("ROLE_USER")
-                        .requestMatchers("/finances/my-conversions").hasAuthority("ROLE_USER")
+                        .requestMatchers("/finances/my-conversions/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/all-conversions").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/swagger-ui/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/v3/api-docs/**").hasAuthority("ROLE_USER")

@@ -1,9 +1,11 @@
 package bg.lrsoft.rlfinflow.controller;
 
+import bg.lrsoft.rlfinflow.domain.dto.ConversionResponseDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
 import bg.lrsoft.rlfinflow.domain.dto.ErrorPayloadDto;
 import bg.lrsoft.rlfinflow.domain.model.Conversion;
+import bg.lrsoft.rlfinflow.domain.model.PageResult;
 import bg.lrsoft.rlfinflow.service.ICurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,9 +15,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Tag(name = "Finances", description = "Finances operations APIs")
 @RequiredArgsConstructor
@@ -77,12 +83,13 @@ public class FinController {
     }
 
     @GetMapping("/all-conversions")
-    public List<Conversion> getConversions() {
+    public List<ConversionResponseDto> getConversions() {
         return currencyService.findAll();
     }
 
     @GetMapping("/my-conversions")
-    public List<Conversion> getMyConversions() {
-        return currencyService.findByAuthenticatedUser();
+    public PageResult<ConversionResponseDto> getMyConversions(
+            @PageableDefault(sort = "createdAt", direction = DESC, size = 5) Pageable pageable) {
+        return currencyService.findByAuthenticatedUser(pageable);
     }
 }
