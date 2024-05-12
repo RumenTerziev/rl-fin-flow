@@ -1,6 +1,5 @@
 package bg.lrsoft.rlfinflow.testconfig;
 
-
 import bg.lrsoft.rlfinflow.config.AppConfig;
 import bg.lrsoft.rlfinflow.config.security.SecurityConfig;
 import bg.lrsoft.rlfinflow.service.IRestService;
