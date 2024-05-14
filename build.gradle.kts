@@ -29,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.mysql:mysql-connector-j")
