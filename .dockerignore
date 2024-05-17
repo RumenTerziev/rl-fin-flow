@@ -1,6 +1,8 @@
 # Ignore Java build files and directories (for Java projects)
 *.class
 .gradle
+gradle
+gradlew
 .m2
 *.log
 
