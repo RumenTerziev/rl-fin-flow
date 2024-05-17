@@ -1,7 +1,5 @@
 # Ignore Java build files and directories (for Java projects)
 *.class
-target
-build
 .gradle
 .m2
 *.log
