@@ -1,0 +1,26 @@
+# Ignore Java build files and directories (for Java projects)
+*.class
+target
+build
+.gradle
+.m2
+*.log
+
+# Ignore test results
+test-results
+*.junit.xml
+Dockerfile
+.dockerignore
+
+# Ignore version control directories
+.git
+.github
+.gitignore
+
+# Ignore editor-specific files
+*.swp
+*.swo
+*.bak
+*~
+.idea
+.vscode
