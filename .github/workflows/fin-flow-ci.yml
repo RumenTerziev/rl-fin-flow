@@ -23,8 +23,8 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Run unit tests
-        run: gradle test
+      - name: Build project
+        run: gradle build
 
       - name: Docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
