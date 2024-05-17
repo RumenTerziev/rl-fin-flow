@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Build project
+      - name: Build gradle project
         run: gradle build
 
       - name: Docker login
