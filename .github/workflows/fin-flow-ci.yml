@@ -1,0 +1,35 @@
+name: rl-fin-flow ci
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Gradle and Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Run unit tests
+        run: gradle test
+
+      - name: Docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Docker build
+        run: |
+          docker build -t "ghcr.io/rumenterziev90/rl-fin-flow-api:latest" .
+          docker push "ghcr.io/rumenterziev90/rl-fin-flow-api:latest"
