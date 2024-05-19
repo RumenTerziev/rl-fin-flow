@@ -31,5 +31,5 @@ jobs:
 
       - name: Docker build
         run: |
-          docker build -t "rumenterziev90/rl-fin-flow-api:v1" .
-          docker push "rumenterziev90/rl-fin-flow-api:v1"
+          docker build -t "ghcr.io/rumenterziev/rl-fin-flow-api:v1" .
+          docker push "ghcr.io/rumenterziev/rl-fin-flow-api:v1"
