@@ -23,7 +23,7 @@ docker run --name mysql-instance -e MYSQL_ROOT_PASSWORD=password -e MYSQL_USER=u
 
 - For Windows:
 
-```bash
+```shell
 $env:db_username="user"; $env:db_password="password"; $env:first_user_username="bryan"; $env:first_user_password="4321"; gradle bootRun
 ```
 
