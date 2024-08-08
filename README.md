@@ -45,6 +45,10 @@ db_username="user" db_password="password" first_user_username="bryan" first_user
 > For the tests h2 database is configured.
 > For the Integration tests Cucumber framework is configured.
 
+##### Swagger UI
+- For default profile -> [Swagger endpoint](http://localhost:8080/api/v1/swagger-ui)
+- For docker profile -> [Swagger endpoint](http://localhost:8081/api/v1/swagger-ui)
+
 ### About the frontend:
 
 > You may find the frontend of the project here:
@@ -55,6 +59,9 @@ db_username="user" db_password="password" first_user_username="bryan" first_user
 ```bash
 docker-compose up
 ```
+
+> Note that if you run the application with docker compose then the nginx server will be used for the frontend and
+> you will find the app on "localhost" and the default port 80.
 
 ##### To stop the app:
 
