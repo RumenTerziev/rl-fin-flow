@@ -6,4 +6,7 @@ RUN gradle bootJar
 FROM openjdk:21
 WORKDIR /rl-fin-flow-backend
 COPY --from=build /workspace/build/libs/*.jar app.jar
+
+EXPOSE 8081
+
 CMD ["java", "-jar", "app.jar"]
