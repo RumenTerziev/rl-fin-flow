@@ -1,7 +1,10 @@
 package bg.lrsoft.rlfinflow.config.security;
 
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +16,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 import java.util.Collections;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -32,11 +37,13 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
+                .addFilterBefore(getFilter(), CsrfFilter.class)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/users/register").permitAll()
+                        .requestMatchers("/users/authenticate").permitAll()
                         .requestMatchers("/users/profile").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/converter").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/my-conversions/**").hasAuthority("ROLE_USER")
@@ -74,5 +81,14 @@ public class SecurityConfig {
     @Bean
     public AuthenticationFailureHandler loginFailureHandler() {
         return new LoginFailureHandler();
+    }
+
+    private Filter getFilter() {
+        return (servletRequest, servletResponse, filterChain) -> {
+            if (servletRequest instanceof HttpServletRequest request) {
+                log.info("REQUEST -> {}", request.getRequestURI());
+            }
+            filterChain.doFilter(servletRequest, servletResponse);
+        };
     }
 }

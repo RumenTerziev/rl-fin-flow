@@ -33,8 +33,8 @@ $env:db_username="user"; $env:db_password="password"; $env:first_user_username="
 db_username="user" db_password="password" first_user_username="bryan" first_user_password="4321" gradle bootRun
 ```
 
->Note that when you run the application with one of these command then you will be able to log in with 
->username: bryan and password: 4321
+> Note that when you run the application with one of these command then you will be able to log in with
+> username: bryan and password: 4321
 
 ##### If you want to run the tests:
 
@@ -46,6 +46,7 @@ db_username="user" db_password="password" first_user_username="bryan" first_user
 > For the Integration tests Cucumber framework is configured.
 
 ##### Swagger UI
+
 - For default profile -> [Swagger endpoint](http://localhost:8080/api/v1/swagger-ui)
 - For docker profile -> [Swagger endpoint](http://localhost:8081/api/v1/swagger-ui)
 
