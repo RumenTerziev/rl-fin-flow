@@ -1,10 +1,8 @@
 package bg.lrsoft.rlfinflow.config;
 
-import bg.lrsoft.rlfinflow.service.ChatAiService;
 import bg.lrsoft.rlfinflow.service.RestService;
 import bg.lrsoft.rlfinflow.service.impl.RestRequestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -13,15 +11,8 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class AppConfig {
 
-    private final ChatClient.Builder chatClientBuilder;
-
     @Bean
     public RestService restService() {
         return new RestRequestService(new RestTemplate());
-    }
-
-    @Bean
-    public ChatAiService chatAiService() {
-        return new ChatAiService(chatClientBuilder);
     }
 }
