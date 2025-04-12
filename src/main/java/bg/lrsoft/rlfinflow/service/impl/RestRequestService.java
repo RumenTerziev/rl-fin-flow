@@ -1,12 +1,12 @@
 package bg.lrsoft.rlfinflow.service.impl;
 
-import bg.lrsoft.rlfinflow.service.IRestService;
+import bg.lrsoft.rlfinflow.service.RestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
-public class RestRequestService implements IRestService {
+public class RestRequestService implements RestService {
 
     private final RestTemplate restTemplate;
 

@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.service.exception;
+package bg.lrsoft.rlfinflow.domain.exception;
 
 public class NoResponseFromExternalApiWasReceived extends RuntimeException {
 

@@ -1,9 +1,11 @@
 package bg.lrsoft.rlfinflow.testconfig;
 
 import bg.lrsoft.rlfinflow.config.AppConfig;
-import bg.lrsoft.rlfinflow.config.security.SecurityConfig;
-import bg.lrsoft.rlfinflow.service.IRestService;
+import bg.lrsoft.rlfinflow.security.SecurityConfig;
+import bg.lrsoft.rlfinflow.service.ChatAiService;
+import bg.lrsoft.rlfinflow.service.RestService;
 import bg.lrsoft.rlfinflow.service.impl.RestRequestService;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -17,7 +19,13 @@ public class TestConfig {
 
     @Bean
     @Primary
-    public IRestService testRestService() {
+    public RestService testRestService() {
         return mock(RestRequestService.class);
+    }
+
+    @Bean
+    @Primary
+    public ChatAiService testChatAiService() {
+        return new ChatAiService(mock(ChatClient.Builder.class));
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface ICurrencyService {
+public interface CurrencyService {
 
     CurrencyResponseDto processConvertRequest(CurrencyRequestDto requestDto);
 

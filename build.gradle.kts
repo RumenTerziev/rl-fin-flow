@@ -17,6 +17,14 @@ repositories {
     mavenCentral()
 }
 
+extra["springAiVersion"] = "1.0.0-M6"
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
+    }
+}
+
 val cucumberVersion = "7.14.1"
 val mapstructVersion = "1.5.5.Final"
 
@@ -29,6 +37,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
+    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.mysql:mysql-connector-j")

@@ -4,7 +4,7 @@ import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
 import bg.lrsoft.rlfinflow.domain.dto.*;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
-import bg.lrsoft.rlfinflow.service.IRestService;
+import bg.lrsoft.rlfinflow.service.RestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
@@ -69,7 +69,7 @@ public class FinanceManagementStepDefinition {
     private String openExchangeUrl;
 
     @Autowired
-    private IRestService restService;
+    private RestService restService;
 
     @Autowired
     private TestRestTemplate testRestTemplate;

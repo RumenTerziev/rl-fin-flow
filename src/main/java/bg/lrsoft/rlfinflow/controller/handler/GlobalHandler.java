@@ -1,12 +1,13 @@
 package bg.lrsoft.rlfinflow.controller.handler;
 
 import bg.lrsoft.rlfinflow.domain.dto.ErrorPayloadDto;
-import bg.lrsoft.rlfinflow.service.exception.NoResponseFromExternalApiWasReceived;
-import bg.lrsoft.rlfinflow.service.exception.NoUserLoggedInException;
+import bg.lrsoft.rlfinflow.domain.exception.NoResponseFromExternalApiWasReceived;
+import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +34,13 @@ public class GlobalHandler {
                 exception.getMessage(),
                 LocalDateTime.now()
         );
+    }
+
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ErrorPayloadDto handleNoResourceFoundException(NoResourceFoundException exception) {
+        log.error(exception.getMessage(), exception);
+        return new ErrorPayloadDto("No resource found", LocalDateTime.now());
     }
 
     @ResponseStatus(INTERNAL_SERVER_ERROR)

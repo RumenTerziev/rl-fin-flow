@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.config.security;
+package bg.lrsoft.rlfinflow.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +16,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
+        log.debug("authentication success, {}", authentication.getAuthorities());
         log.info("Successfully logged in as {}", authentication.getName());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

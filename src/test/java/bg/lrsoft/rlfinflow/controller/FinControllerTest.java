@@ -2,8 +2,8 @@ package bg.lrsoft.rlfinflow.controller;
 
 import bg.lrsoft.rlfinflow.domain.dto.*;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
-import bg.lrsoft.rlfinflow.service.ICurrencyService;
-import bg.lrsoft.rlfinflow.service.IRestService;
+import bg.lrsoft.rlfinflow.service.CurrencyService;
+import bg.lrsoft.rlfinflow.service.RestService;
 import bg.lrsoft.rlfinflow.testconfig.TestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -38,10 +38,10 @@ public class FinControllerTest {
     private String openExchangeUrl;
 
     @Autowired
-    private IRestService restService;
+    private RestService restService;
 
     @MockBean
-    private ICurrencyService currencyService;
+    private CurrencyService currencyService;
 
     @MockBean
     private FinFlowUserService finFlowUserService;

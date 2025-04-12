@@ -43,7 +43,7 @@ class FinFlowUserServiceTest {
                 lastName,
                 email,
                 phoneNumber,
-                AuthorityUtils.createAuthorityList("ROLE_USER"));
+                AuthorityUtils.createAuthorityList("USER"));
 
         when(finflowUserMapper.mapToEntity(finFlowUserRegisterDto)).thenReturn(finFlowUser);
         when(finFlowUserRepository.add(finFlowUser)).thenReturn(finFlowUser);

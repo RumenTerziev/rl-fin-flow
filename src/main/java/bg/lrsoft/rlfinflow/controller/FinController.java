@@ -5,7 +5,7 @@ import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
 import bg.lrsoft.rlfinflow.domain.dto.ErrorPayloadDto;
 import bg.lrsoft.rlfinflow.domain.model.PageResult;
-import bg.lrsoft.rlfinflow.service.ICurrencyService;
+import bg.lrsoft.rlfinflow.service.CurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,7 +28,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RequestMapping("/finances")
 public class FinController {
 
-    private final ICurrencyService currencyService;
+    private final CurrencyService currencyService;
 
     @Operation(description = "Convert currencies")
     @ApiResponses(value = {

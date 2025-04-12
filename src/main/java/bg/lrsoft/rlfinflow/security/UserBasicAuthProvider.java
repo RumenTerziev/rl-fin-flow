@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.config.security;
+package bg.lrsoft.rlfinflow.security;
 
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import lombok.RequiredArgsConstructor;

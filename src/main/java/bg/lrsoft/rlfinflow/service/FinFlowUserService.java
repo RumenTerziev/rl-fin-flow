@@ -5,7 +5,7 @@ import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserRegisterDto;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserResponseDto;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
-import bg.lrsoft.rlfinflow.service.exception.NoUserLoggedInException;
+import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

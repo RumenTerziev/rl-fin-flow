@@ -7,9 +7,9 @@ import bg.lrsoft.rlfinflow.domain.model.Conversion;
 import bg.lrsoft.rlfinflow.domain.model.PageResult;
 import bg.lrsoft.rlfinflow.repository.ConversionRepository;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
-import bg.lrsoft.rlfinflow.service.ICurrencyService;
-import bg.lrsoft.rlfinflow.service.IRestService;
-import bg.lrsoft.rlfinflow.service.exception.NoResponseFromExternalApiWasReceived;
+import bg.lrsoft.rlfinflow.service.CurrencyService;
+import bg.lrsoft.rlfinflow.service.RestService;
+import bg.lrsoft.rlfinflow.domain.exception.NoResponseFromExternalApiWasReceived;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CurrencyConvertService implements ICurrencyService {
+public class CurrencyConvertService implements CurrencyService {
 
     @Value("${open.exchange.currency.convertor.url}")
     private String currencyConvertorUrl;
@@ -30,7 +30,7 @@ public class CurrencyConvertService implements ICurrencyService {
 
     private final ConversionRepository conversionRepository;
 
-    private final IRestService restService;
+    private final RestService restService;
 
     private final ConversionMapper conversionMapper;
 

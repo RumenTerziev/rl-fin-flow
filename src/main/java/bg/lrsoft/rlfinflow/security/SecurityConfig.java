@@ -1,4 +1,4 @@
-package bg.lrsoft.rlfinflow.config.security;
+package bg.lrsoft.rlfinflow.security;
 
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import jakarta.servlet.Filter;
@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/finances/converter").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/my-conversions/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/finances/all-conversions").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/chat/ask-ai").hasAuthority("ROLE_USER")
                         .requestMatchers("/swagger-ui/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/v3/api-docs/**").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated())
