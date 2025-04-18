@@ -17,7 +17,7 @@ public class ChatAiService {
     }
 
     public ChatMessageResponseDto getChatResponseFromAi(ChatMessageRequestDto chatMessageRequestDto) {
-        String message = chatMessageRequestDto.message();
+        String message = chatMessageRequestDto.prompt();
         String resp = chatClient.prompt(message)
                 .call()
                 .content();

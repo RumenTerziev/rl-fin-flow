@@ -17,7 +17,7 @@ public class ChatController {
     private final ChatAiService chatAiService;
 
     @PostMapping("/ask-ai")
-    public ChatMessageResponseDto askAi(@RequestBody ChatMessageRequestDto message) {
-        return chatAiService.getChatResponseFromAi(message);
+    public ChatMessageResponseDto askAi(@RequestBody ChatMessageRequestDto prompt) {
+        return chatAiService.getChatResponseFromAi(prompt);
     }
 }
