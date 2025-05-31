@@ -28,6 +28,12 @@ public record CurrencyResponseDto(
                 description = "The result sum that was calculated",
                 example = "11.3447"
         )
-        double resultSum
+        double resultSum,
+
+        @Schema(
+        description = "The currency rate",
+        example = "1.92"
+        )
+        double currencyRate
 ) {
 }

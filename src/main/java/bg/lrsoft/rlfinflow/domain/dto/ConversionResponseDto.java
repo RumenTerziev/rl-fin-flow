@@ -12,6 +12,8 @@ public record ConversionResponseDto(
 
         double resultSum,
 
+        double currencyRate,
+
         String createdAt
 ) {
 }

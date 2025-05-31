@@ -20,6 +20,7 @@ public interface ConversionMapper {
                 conversion.getCurrencyToConvertTo(),
                 conversion.getSumToConvert(),
                 conversion.getResultSum(),
+                conversion.getCurrencyRate(),
                 dateTimeFormatter.format(conversion.getCreatedAt())
         );
     }

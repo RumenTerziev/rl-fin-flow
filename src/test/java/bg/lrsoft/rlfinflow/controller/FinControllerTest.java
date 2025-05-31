@@ -71,7 +71,7 @@ public class FinControllerTest {
 
         CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(BGN, EUR, sumToConvert);
 
-        CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, sumToConvert, expectedResultSum);
+        CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, sumToConvert, expectedResultSum, mockedExchangeRate);
         when(currencyService.processConvertRequest(currencyRequestDto)).thenReturn(responseDto);
 
         //When
@@ -84,6 +84,7 @@ public class FinControllerTest {
                 .andExpect(jsonPath("$.baseCurrency").value(baseCurrency))
                 .andExpect(jsonPath("$.currencyToConvertTo").value(currencyToConvertTo))
                 .andExpect(jsonPath("$.sumToConvert").value(sumToConvert))
-                .andExpect(jsonPath("$.resultSum").value(expectedResultSum));
+                .andExpect(jsonPath("$.resultSum").value(expectedResultSum))
+                .andExpect(jsonPath("$.currencyRate").value(mockedExchangeRate));
     }
 }

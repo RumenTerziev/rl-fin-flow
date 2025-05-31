@@ -33,14 +33,17 @@ public class Conversion {
 
     private double resultSum;
 
+    private double currencyRate;
+
     private LocalDateTime createdAt;
 
-    public Conversion(String loggedUsername, CurrencyCode baseCurrency, CurrencyCode currencyToConvertTo, double sumToConvert, double resultSum) {
+    public Conversion(String loggedUsername, CurrencyCode baseCurrency, CurrencyCode currencyToConvertTo, double sumToConvert, double resultSum, double currencyRate) {
         this.loggedUsername = loggedUsername;
         this.baseCurrency = baseCurrency;
         this.currencyToConvertTo = currencyToConvertTo;
         this.sumToConvert = sumToConvert;
         this.resultSum = resultSum;
+        this.currencyRate = currencyRate;
         this.createdAt = LocalDateTime.now();
     }
 }
