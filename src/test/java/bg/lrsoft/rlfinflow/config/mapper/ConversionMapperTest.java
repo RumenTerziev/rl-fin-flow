@@ -23,8 +23,9 @@ class ConversionMapperTest {
         CurrencyCode currencyToConvertTo = BGN;
         double sumToConvert = 10.0;
         double resultSum = 20.0;
+        double currencyRate = 0.5;
 
-        Conversion conversion = new Conversion(loggedUsername, baseCurrency, currencyToConvertTo, sumToConvert, resultSum);
+        Conversion conversion = new Conversion(loggedUsername, baseCurrency, currencyToConvertTo, sumToConvert, resultSum, currencyRate);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String expectedCreatedAt = dateTimeFormatter.format(conversion.getCreatedAt());
 
