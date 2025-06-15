@@ -21,7 +21,7 @@ jobs:
           cache: 'gradle'
 
       - name: Build Gradle project
-        run: ./gradlew build
+        run: gradle build
 
       - name: Extract tag version
         id: get_tag
