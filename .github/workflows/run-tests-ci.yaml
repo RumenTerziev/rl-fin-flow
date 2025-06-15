@@ -1,7 +1,11 @@
-name: rl-fin-flow ci
+name: Run Tests CI
 
 on:
   pull_request:
+    branches:
+      - main
+
+  push:
     branches:
       - main
 

@@ -1,13 +1,14 @@
-name: rl-fin-flow ci
+name: Build and Push Docker Images to GHCR
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,13 +20,26 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Build gradle project
-        run: gradle build
+      - name: Build Gradle project
+        run: ./gradlew build
 
-      - name: Docker login
+      - name: Extract tag version
+        id: get_tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Docker login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Docker build
+      - name: Build and Push Docker Images
         run: |
-          docker build -t "ghcr.io/rumenterziev/dlrfinflow-api:v1.0" .
-          docker push "ghcr.io/rumenterziev/dlrfinflow-api:v1.0"
+          VERSION_IMAGE="ghcr.io/rumenterziev/dlrfinflow-api:${VERSION}"
+          LATEST_IMAGE="ghcr.io/rumenterziev/dlrfinflow-api:latest"
+          
+          echo "Building Docker image with tags: $VERSION_IMAGE and $LATEST_IMAGE"
+          docker build -t "$VERSION_IMAGE" -t "$LATEST_IMAGE" .
+
+          echo "Pushing $VERSION_IMAGE"
+          docker push "$VERSION_IMAGE"
+
+          echo "Pushing $LATEST_IMAGE"
+          docker push "$LATEST_IMAGE"
