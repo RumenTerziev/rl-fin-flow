@@ -41,20 +41,16 @@ public class FinController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized"
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized",
+                    responseCode = "400",
+                    description = "Bad Request",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorPayloadDto.class)
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Bad Request",
+                    responseCode = "401",
+                    description = "Unauthorized",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorPayloadDto.class)
@@ -66,12 +62,64 @@ public class FinController {
         return currencyService.processConvertRequest(currencyRequestDto);
     }
 
-    @GetMapping("/all-conversions")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Success",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CurrencyResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorPayloadDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorPayloadDto.class)
+                    )
+            )
+    })
+    @GetMapping("/conversions")
     public List<ConversionResponseDto> getConversions() {
         return currencyService.findAll();
     }
 
-    @GetMapping("/my-conversions")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Success",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CurrencyResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorPayloadDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorPayloadDto.class)
+                    )
+            )
+    })
+    @GetMapping("/conversions/mine")
     public PageResult<ConversionResponseDto> getMyConversions(
             @PageableDefault(sort = "createdAt", direction = DESC, size = 5) Pageable pageable) {
         return currencyService.findByAuthenticatedUser(pageable);

@@ -8,16 +8,16 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ChatAiService {
+public class AssistantService {
 
     private final ChatClient chatClient;
 
-    public ChatAiService(ChatClient.Builder chatClientBuilder) {
+    public AssistantService(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
     }
 
     public ChatMessageResponseDto getChatResponseFromAi(ChatMessageRequestDto chatMessageRequestDto) {
-        String message = chatMessageRequestDto.prompt();
+        String message = chatMessageRequestDto.prompt() ;
         String resp = chatClient.prompt(message)
                 .call()
                 .content();

@@ -148,6 +148,6 @@ public class FinanceManagementStepDefinition {
 
         HttpEntity<MultiValueMap<String, String>> loginRequest = new HttpEntity<>(loginParams, loginHeaders);
 
-        return testRestTemplate.postForEntity("/users/authenticate", loginRequest, Void.class);
+        return testRestTemplate.postForEntity("/auth/login", loginRequest, Void.class);
     }
 }
