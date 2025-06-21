@@ -1,7 +1,7 @@
-name: Run Tests CI
+name: Test On PR
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 jobs:

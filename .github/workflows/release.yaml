@@ -1,14 +1,12 @@
-name: Create GitHub Release
+name: Auto Tag and Release (MAJOR.MINOR)
 
 on:
-  workflow_run:
-    workflows: ["Run Tests CI"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
-  release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  tag-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +54,12 @@ jobs:
           echo "$log" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Create tag
+      - name: Set repo and previous tag env
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
+          echo "PREVIOUS_TAG=${{ env.BASE_TAG }}" >> $GITHUB_ENV
+
+      - name: Create tag and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -69,9 +72,11 @@ jobs:
           tag_name: ${{ env.NEW_TAG }}
           name: Release ${{ env.NEW_TAG }}
           body: |
-            🚀 Release ${{ env.NEW_TAG }} is published.
+            🚀 **Release ${{ env.NEW_TAG }}**
 
             ### Changelog
             ${{ env.CHANGELOG }}
+
+            🔗 [Full Changelog](https://github.com/${{ env.REPO }}/compare/${{ env.PREVIOUS_TAG || 'main' }}...${{ env.NEW_TAG }})
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
