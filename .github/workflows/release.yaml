@@ -1,0 +1,77 @@
+name: Create GitHub Release
+
+on:
+  workflow_run:
+    workflows: ["Run Tests CI"]
+    types:
+      - completed
+
+jobs:
+  release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine next tag
+        id: bump
+        run: |
+          latest_tag=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+$' | head -n 1)
+
+          if [ -z "$latest_tag" ]; then
+            new_tag="v0.1"
+            base_ref=""
+          else
+            major=$(echo "$latest_tag" | cut -d. -f1 | sed 's/v//')
+            minor=$(echo "$latest_tag" | cut -d. -f2)
+
+            if [ "$minor" -lt 9 ]; then
+              new_minor=$((minor + 1))
+              new_tag="v${major}.${new_minor}"
+            else
+              new_major=$((major + 1))
+              new_tag="v${new_major}.0"
+            fi
+
+            base_ref="$latest_tag"
+          fi
+
+          echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
+          echo "BASE_TAG=$base_ref" >> $GITHUB_ENV
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          if [ -z "${{ env.BASE_TAG }}" ]; then
+            log=$(git log --pretty=format:"- %s" HEAD~20..HEAD)
+          else
+            log=$(git log --pretty=format:"- %s" ${{ env.BASE_TAG }}..HEAD)
+          fi
+
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$log" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ env.NEW_TAG }}
+          git push origin ${{ env.NEW_TAG }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          name: Release ${{ env.NEW_TAG }}
+          body: |
+            🚀 Release ${{ env.NEW_TAG }} is published.
+
+            ### Changelog
+            ${{ env.CHANGELOG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

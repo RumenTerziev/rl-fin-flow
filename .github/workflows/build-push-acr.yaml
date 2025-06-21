@@ -1,17 +1,21 @@
 name: Build and Push Docker Images to ACR
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["Create GitHub Release"]
+    types:
+      - completed
 
 jobs:
   build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup Gradle and Java
         uses: actions/setup-java@v3
@@ -25,7 +29,10 @@ jobs:
 
       - name: Extract tag version
         id: get_tag
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "VERSION=${latest_tag}" >> $GITHUB_ENV
+          echo "Latest tag is $latest_tag"
 
       - name: Log in to ACR
         uses: azure/docker-login@v1
@@ -41,9 +48,9 @@ jobs:
           
           echo "Building Docker image: $VERSION_IMAGE"
           docker build -t "$VERSION_IMAGE" -t "$LATEST_IMAGE" .
-
+          
           echo "Pushing $VERSION_IMAGE"
           docker push "$VERSION_IMAGE"
-
+          
           echo "Pushing $LATEST_IMAGE"
           docker push "$LATEST_IMAGE"

@@ -4,13 +4,12 @@ on:
   pull_request:
     branches:
       - main
-
   push:
     branches:
       - main
 
 jobs:
-  build-and-push:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,5 +22,5 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Build gradle project
+      - name: Run tests
         run: gradle test
