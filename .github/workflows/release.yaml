@@ -1,12 +1,14 @@
 name: Auto Tag and Release (MAJOR.MINOR)
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Run Tests CI"]
+    types:
+      - completed
 
 jobs:
   tag-and-release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
