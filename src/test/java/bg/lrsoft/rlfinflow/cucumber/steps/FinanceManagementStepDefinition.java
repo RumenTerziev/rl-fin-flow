@@ -34,11 +34,11 @@ import static org.springframework.http.HttpStatus.OK;
 
 public class FinanceManagementStepDefinition {
 
-    private CurrencyCode baseCurrency;
+    private CurrencyCode fromCurrency;
 
-    private CurrencyCode currencyToConvertTo;
+    private CurrencyCode toCurrency;
 
-    private double sumToConvert;
+    private double amount;
 
     private ResponseEntity<CurrencyResponseDto> response;
 
@@ -50,17 +50,8 @@ public class FinanceManagementStepDefinition {
     @Value("${first.fin-flow.user.password}")
     private String firstUserPassword;
 
-    @Value("${first.fin-flow.user.first-name}")
-    private String firstUserFirstName;
-
-    @Value("${first.fin-flow.user.last-name}")
-    private String firstUserLastName;
-
     @Value("${first.fin-flow.user.email}")
     private String firstUserEmail;
-
-    @Value("${first.fin-flow.user.phone-number}")
-    private String firstUserPhoneNumber;
 
     @Value("${first.fin-flow.user.authorities}")
     private List<String> firstUserAuthorities;
@@ -81,14 +72,14 @@ public class FinanceManagementStepDefinition {
     private ObjectMapper objectMapper;
 
     @Given("^([0-9]+(?:\\.[0-9]+)?)\\s+([A-Z]+)\\s+to\\s+convert$")
-    public void convert(double sumToConvert, String baseCurrency) {
-        this.baseCurrency = CurrencyCode.valueOf(baseCurrency);
-        this.sumToConvert = sumToConvert;
+    public void convert(double sumToConvert, String fromCurrency) {
+        this.fromCurrency = CurrencyCode.valueOf(fromCurrency);
+        this.amount = sumToConvert;
     }
 
     @And("^the result currency is ([A-Z]+)$")
-    public void the_result_currency_is(String currencyToConvertTo) {
-        this.currencyToConvertTo = CurrencyCode.valueOf(currencyToConvertTo);
+    public void the_result_currency_is(String toCurrency) {
+        this.toCurrency = CurrencyCode.valueOf(toCurrency);
     }
 
     @When("^I make a request to convert them$")
@@ -97,12 +88,12 @@ public class FinanceManagementStepDefinition {
         initialize();
         ResponseEntity<Void> loginResponse = login();
 
-        String currencyToConvertTo = this.currencyToConvertTo.toString();
+        String toCurrency = this.toCurrency.toString();
 
         when(restService.getForEntity(anyString(), eq(ExchangeRespDto.class)))
                 .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
-                        Map.of(currencyToConvertTo,
-                                new OpenConverterCurrencyRespDto(currencyToConvertTo, 0.50))), OK));
+                        Map.of(toCurrency,
+                                new OpenConverterCurrencyRespDto(toCurrency, 0.50))), OK));
 
         String url = "/finances/converter";
 
@@ -110,7 +101,7 @@ public class FinanceManagementStepDefinition {
         postHeaders.setContentType(MediaType.APPLICATION_JSON);
         postHeaders.add(HttpHeaders.COOKIE, loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
 
-        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(baseCurrency, this.currencyToConvertTo, sumToConvert);
+        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(fromCurrency, this.toCurrency, amount);
 
         HttpEntity<CurrencyRequestDto> postRequest = new HttpEntity<>(currencyRequestDto, postHeaders);
 

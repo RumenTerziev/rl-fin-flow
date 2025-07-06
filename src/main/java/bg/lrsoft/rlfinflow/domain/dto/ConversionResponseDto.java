@@ -4,11 +4,11 @@ import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
 
 public record ConversionResponseDto(
 
-        CurrencyCode baseCurrency,
+        CurrencyCode fromCurrency,
 
-        CurrencyCode currencyToConvertTo,
+        CurrencyCode toCurrency,
 
-        double sumToConvert,
+        double amount,
 
         double resultSum,
 

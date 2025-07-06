@@ -24,12 +24,12 @@ public class Conversion {
     private String loggedUsername;
 
     @Enumerated(STRING)
-    private CurrencyCode baseCurrency;
+    private CurrencyCode fromCurrency;
 
     @Enumerated(STRING)
-    private CurrencyCode currencyToConvertTo;
+    private CurrencyCode toCurrency;
 
-    private double sumToConvert;
+    private double amount;
 
     private double resultSum;
 
@@ -37,11 +37,11 @@ public class Conversion {
 
     private LocalDateTime createdAt;
 
-    public Conversion(String loggedUsername, CurrencyCode baseCurrency, CurrencyCode currencyToConvertTo, double sumToConvert, double resultSum, double currencyRate) {
+    public Conversion(String loggedUsername, CurrencyCode fromCurrency, CurrencyCode toCurrency, double amount, double resultSum, double currencyRate) {
         this.loggedUsername = loggedUsername;
-        this.baseCurrency = baseCurrency;
-        this.currencyToConvertTo = currencyToConvertTo;
-        this.sumToConvert = sumToConvert;
+        this.fromCurrency = fromCurrency;
+        this.toCurrency = toCurrency;
+        this.amount = amount;
         this.resultSum = resultSum;
         this.currencyRate = currencyRate;
         this.createdAt = LocalDateTime.now();

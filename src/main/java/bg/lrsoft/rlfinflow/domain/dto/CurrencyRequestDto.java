@@ -13,20 +13,20 @@ public record CurrencyRequestDto(
                 example = "BGN",
                 requiredMode = REQUIRED
         )
-        CurrencyCode baseCurrency,
+        CurrencyCode fromCurrency,
 
         @Schema(
                 description = "The currency that you would like to convert to",
                 example = "USD",
                 requiredMode = REQUIRED
         )
-        CurrencyCode currencyToConvertTo,
+        CurrencyCode toCurrency,
 
         @Schema(
                 description = "The sum that would be converted",
                 example = "20.5",
                 requiredMode = REQUIRED
         )
-        double sumToConvert
+        double amount
 ) {
 }

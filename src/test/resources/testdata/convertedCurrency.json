@@ -1,7 +1,7 @@
 {
-  "baseCurrency" : "BGN",
-  "currencyToConvertTo" : "EUR",
-  "sumToConvert" : 20.0,
+  "fromCurrency" : "BGN",
+  "toCurrency" : "EUR",
+  "amount" : 20.0,
   "resultSum" : 10.0,
   "currencyRate" : 0.5
 }

@@ -57,21 +57,21 @@ public class FinControllerTest {
     void testExchange_whenGivenRequestDto_shouldReturnValidResult() throws Exception {
         //Given
         String url = "/finances/converter";
-        String currencyToConvertTo = "EUR";
-        String baseCurrency = "BGN";
-        double sumToConvert = 20.0;
+        String toCurrency = "EUR";
+        String fromCurrency = "BGN";
+        double amount = 20.0;
         double expectedResultSum = 10.0;
         double mockedExchangeRate = 0.50;
 
         when(restService.getForEntity(
-                openExchangeUrl.formatted(currencyToConvertTo, baseCurrency),
+                openExchangeUrl.formatted(toCurrency, fromCurrency),
                 ExchangeRespDto.class))
                 .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
-                        Map.of(currencyToConvertTo, new OpenConverterCurrencyRespDto(currencyToConvertTo, mockedExchangeRate))), OK));
+                        Map.of(toCurrency, new OpenConverterCurrencyRespDto(toCurrency, mockedExchangeRate))), OK));
 
-        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(BGN, EUR, sumToConvert);
+        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(BGN, EUR, amount);
 
-        CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, sumToConvert, expectedResultSum, mockedExchangeRate);
+        CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, amount, expectedResultSum, mockedExchangeRate);
         when(currencyService.processConvertRequest(currencyRequestDto)).thenReturn(responseDto);
 
         //When
@@ -81,9 +81,9 @@ public class FinControllerTest {
 
         //Then
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.baseCurrency").value(baseCurrency))
-                .andExpect(jsonPath("$.currencyToConvertTo").value(currencyToConvertTo))
-                .andExpect(jsonPath("$.sumToConvert").value(sumToConvert))
+                .andExpect(jsonPath("$.fromCurrency").value(fromCurrency))
+                .andExpect(jsonPath("$.toCurrency").value(toCurrency))
+                .andExpect(jsonPath("$.amount").value(amount))
                 .andExpect(jsonPath("$.resultSum").value(expectedResultSum))
                 .andExpect(jsonPath("$.currencyRate").value(mockedExchangeRate));
     }

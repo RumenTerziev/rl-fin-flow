@@ -10,19 +10,19 @@ public record CurrencyResponseDto(
                 description = "The base currency that was converted",
                 example = "BGN"
         )
-        CurrencyCode baseCurrency,
+        CurrencyCode fromCurrency,
 
         @Schema(
                 description = "The currency that the given amount was converted to",
                 example = "USD"
         )
-        CurrencyCode currencyToConvertTo,
+        CurrencyCode toCurrency,
 
         @Schema(
                 description = "The sum that was converted",
                 example = "20.5"
         )
-        double sumToConvert,
+        double amount,
 
         @Schema(
                 description = "The result sum that was calculated",

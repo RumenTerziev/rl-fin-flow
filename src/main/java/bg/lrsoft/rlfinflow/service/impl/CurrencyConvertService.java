@@ -38,18 +38,18 @@ public class CurrencyConvertService implements CurrencyService {
 
     @Override
     public CurrencyResponseDto processConvertRequest(CurrencyRequestDto requestDto) {
-        String baseCurrency = requestDto.baseCurrency().toString();
-        String currencyToConvertTo = requestDto.currencyToConvertTo().toString();
-        ExchangeRespDto responseBody = retrieveCurrencyResponseDto(baseCurrency, currencyToConvertTo);
+        String fromCurrency = requestDto.fromCurrency().toString();
+        String toCurrency = requestDto.toCurrency().toString();
+        ExchangeRespDto responseBody = retrieveCurrencyResponseDto(fromCurrency, toCurrency);
         List<OpenConverterCurrencyRespDto> allCurrencyValues = responseBody.data()
                 .values().stream()
                 .toList();
-        CurrencyResponseDto currencyResponseDto = getCurrencyResponseDto(requestDto, allCurrencyValues, baseCurrency);
+        CurrencyResponseDto currencyResponseDto = getCurrencyResponseDto(requestDto, allCurrencyValues, fromCurrency);
         conversionRepository.save(new Conversion(
                 finFlowUserService.getAuthenticatedUser().getUsername(),
-                currencyResponseDto.baseCurrency(),
-                currencyResponseDto.currencyToConvertTo(),
-                currencyResponseDto.sumToConvert(),
+                currencyResponseDto.fromCurrency(),
+                currencyResponseDto.toCurrency(),
+                currencyResponseDto.amount(),
                 currencyResponseDto.resultSum(),
                 currencyResponseDto.currencyRate()));
         return currencyResponseDto;
@@ -73,9 +73,9 @@ public class CurrencyConvertService implements CurrencyService {
         return new PageResult<>(items, count);
     }
 
-    private ExchangeRespDto retrieveCurrencyResponseDto(String baseCurrency, String currencyToConvertTo) {
+    private ExchangeRespDto retrieveCurrencyResponseDto(String fromCurrency, String toCurrency) {
         ResponseEntity<ExchangeRespDto> response = restService.getForEntity(
-                currencyConvertorUrl.formatted(currencyToConvertTo, baseCurrency),
+                currencyConvertorUrl.formatted(toCurrency, fromCurrency),
                 ExchangeRespDto.class);
         ExchangeRespDto responseBody = response.getBody();
         if (responseBody == null) {
@@ -84,16 +84,16 @@ public class CurrencyConvertService implements CurrencyService {
         return responseBody;
     }
 
-    private CurrencyResponseDto getCurrencyResponseDto(CurrencyRequestDto requestDto, List<OpenConverterCurrencyRespDto> allCurrencyValues, String baseCurrency) {
+    private CurrencyResponseDto getCurrencyResponseDto(CurrencyRequestDto requestDto, List<OpenConverterCurrencyRespDto> allCurrencyValues, String fromCurrency) {
         for (OpenConverterCurrencyRespDto currencyRespDto : allCurrencyValues) {
-            if (currencyRespDto.code().equals(requestDto.currencyToConvertTo().toString())) {
+            if (currencyRespDto.code().equals(requestDto.toCurrency().toString())) {
                 double value = currencyRespDto.value();
-                double sumToConvert = requestDto.sumToConvert();
+                double sumToConvert = requestDto.amount();
                 double convertedSum = sumToConvert * value;
                 double roundedSum = new BigDecimal(convertedSum).setScale(3, RoundingMode.HALF_UP).doubleValue();
                 double roundedCurrencyRate = new BigDecimal(value).setScale(3, RoundingMode.HALF_UP).doubleValue();
                 return new CurrencyResponseDto(
-                        CurrencyCode.valueOf(baseCurrency),
+                        CurrencyCode.valueOf(fromCurrency),
                         CurrencyCode.valueOf(currencyRespDto.code()),
                         sumToConvert, roundedSum, roundedCurrencyRate);
             }

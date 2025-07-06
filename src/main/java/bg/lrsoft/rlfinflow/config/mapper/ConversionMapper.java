@@ -16,9 +16,9 @@ public interface ConversionMapper {
     default ConversionResponseDto mapToResponseDto(Conversion conversion) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return new ConversionResponseDto(
-                conversion.getBaseCurrency(),
-                conversion.getCurrencyToConvertTo(),
-                conversion.getSumToConvert(),
+                conversion.getFromCurrency(),
+                conversion.getToCurrency(),
+                conversion.getAmount(),
                 conversion.getResultSum(),
                 conversion.getCurrencyRate(),
                 dateTimeFormatter.format(conversion.getCreatedAt())
