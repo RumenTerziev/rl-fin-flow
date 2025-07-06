@@ -19,11 +19,7 @@ class FinFlowUserMapperTest {
         String username = "johnd";
         String password = "1234";
         String email = "johndoe@example.com";
-        String firstName = "John";
-        String lastName = "Doe";
-        String phoneNumber = "123456789";
-        FinFlowUserRegisterDto userRegisterDto = new FinFlowUserRegisterDto(username, password, firstName, lastName,
-                email, phoneNumber);
+        FinFlowUserRegisterDto userRegisterDto = new FinFlowUserRegisterDto(username, password, email);
 
         //When
         FinFlowUser result = finFlowUserMapper.mapToEntity(userRegisterDto);
@@ -32,10 +28,7 @@ class FinFlowUserMapperTest {
         assertThat(result).isNotNull();
         assertThat(result.getUsername()).isEqualTo(username);
         assertThat(result.getPassword()).isNull();
-        assertThat(result.getFirstName()).isEqualTo(firstName);
-        assertThat(result.getLastName()).isEqualTo(lastName);
         assertThat(result.getEmail()).isEqualTo(email);
-        assertThat(result.getPhoneNumber()).isEqualTo(phoneNumber);
     }
 
     @Test
@@ -44,11 +37,7 @@ class FinFlowUserMapperTest {
         String username = "johnd";
         String password = "1234";
         String email = "johndoe@example.com";
-        String firstName = "John";
-        String lastName = "Doe";
-        String phoneNumber = "123456789";
-        FinFlowUser finFlowUser = new FinFlowUser(username, password, firstName, lastName, email, phoneNumber,
-                new ArrayList<>());
+        FinFlowUser finFlowUser = new FinFlowUser(username, password, email, new ArrayList<>());
 
         //When
         FinFlowUserResponseDto result = finFlowUserMapper.mapToResponseDto(finFlowUser);
@@ -56,9 +45,6 @@ class FinFlowUserMapperTest {
         //Then
         assertThat(result).isNotNull();
         assertThat(result.username()).isEqualTo(username);
-        assertThat(result.firstName()).isEqualTo(firstName);
-        assertThat(result.lastName()).isEqualTo(lastName);
         assertThat(result.email()).isEqualTo(email);
-        assertThat(result.phoneNumber()).isEqualTo(phoneNumber);
     }
 }

@@ -3,9 +3,9 @@ package bg.lrsoft.rlfinflow.service;
 import bg.lrsoft.rlfinflow.config.mapper.FinFlowUserMapper;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserRegisterDto;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserResponseDto;
+import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
-import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,17 +34,9 @@ public class FinFlowUserService implements UserDetailsService {
     @Value("${first.fin-flow.user.password}")
     private String firstUserPassword;
 
-    @Value("${first.fin-flow.user.first-name}")
-    private String firstUserFirstName;
-
-    @Value("${first.fin-flow.user.last-name}")
-    private String firstUserLastName;
 
     @Value("${first.fin-flow.user.email}")
     private String firstUserEmail;
-
-    @Value("${first.fin-flow.user.phone-number}")
-    private String firstUserPhoneNumber;
 
     @Value("${first.fin-flow.user.authorities}")
     private List<String> firstUserAuthorities;
@@ -76,10 +68,7 @@ public class FinFlowUserService implements UserDetailsService {
         FinFlowUser finFlowUser = new FinFlowUser(
                 firstUserUsername,
                 passwordEncoder.encode(firstUserPassword),
-                firstUserFirstName,
-                firstUserLastName,
                 firstUserEmail,
-                firstUserPhoneNumber,
                 AuthorityUtils.createAuthorityList(firstUserAuthorities));
         finFlowUserRepository.add(finFlowUser);
         log.info("Added first user to db!!! {}", finFlowUser);

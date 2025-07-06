@@ -129,10 +129,7 @@ public class FinanceManagementStepDefinition {
         FinFlowUser finFlowUser = new FinFlowUser(
                 firstUserUsername,
                 passwordEncoder.encode(firstUserPassword),
-                firstUserFirstName,
-                firstUserLastName,
                 firstUserEmail,
-                firstUserPhoneNumber,
                 AuthorityUtils.createAuthorityList(firstUserAuthorities));
         finFlowUserRepository.add(finFlowUser);
         System.out.printf("Added first user to db!!! %s%n", finFlowUser);

@@ -20,9 +20,6 @@ public interface FinFlowUserMapper {
     default FinFlowUserResponseDto mapToResponseDto(FinFlowUser finFlowUser) {
         return new FinFlowUserResponseDto(
                 finFlowUser.getUsername(),
-                finFlowUser.getFirstName(),
-                finFlowUser.getLastName(),
-                finFlowUser.getEmail(),
-                finFlowUser.getPhoneNumber());
+                finFlowUser.getEmail());
     }
 }

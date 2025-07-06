@@ -21,30 +21,12 @@ public record FinFlowUserRegisterDto(
         @NotBlank
         String password,
 
-        @Schema(
-                description = "First name of the user",
-                example = "Tom"
-        )
-        @NotBlank
-        String firstName,
-
-        @Schema(
-                description = "Last name of the user",
-                example = "Jones"
-        )
-        String lastName,
 
         @Schema(
                 description = "Email of the user",
                 example = "tommyj@example.com"
         )
         @Email
-        String email,
-
-        @Schema(
-                description = "Phone number of the user",
-                example = "088112233"
-        )
-        String phoneNumber
+        String email
 ) {
 }

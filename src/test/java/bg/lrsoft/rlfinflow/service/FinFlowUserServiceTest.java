@@ -24,25 +24,16 @@ class FinFlowUserServiceTest {
         //Given
         String username = "test";
         String password = "test";
-        String firstName = "test";
-        String lastName = "test";
         String email = "test@test.com";
-        String phoneNumber = "test";
         FinFlowUserRegisterDto finFlowUserRegisterDto = new FinFlowUserRegisterDto(
                 username,
                 password,
-                firstName,
-                lastName,
-                email,
-                phoneNumber);
+                email);
 
         FinFlowUser finFlowUser = new FinFlowUser(
                 username,
                 password,
-                firstName,
-                lastName,
                 email,
-                phoneNumber,
                 AuthorityUtils.createAuthorityList("USER"));
 
         when(finflowUserMapper.mapToEntity(finFlowUserRegisterDto)).thenReturn(finFlowUser);
@@ -50,20 +41,14 @@ class FinFlowUserServiceTest {
         when(finflowUserMapper.mapToResponseDto(finFlowUser))
                 .thenReturn(new FinFlowUserResponseDto(
                         username,
-                        firstName,
-                        lastName,
-                        email,
-                        phoneNumber));
+                        email));
 
         //When
         FinFlowUserResponseDto responseDto = finFlowUserService.registerUser(finFlowUserRegisterDto);
 
         //Then
         assertThat(responseDto.username()).isEqualTo(finFlowUser.getUsername());
-        assertThat(responseDto.firstName()).isEqualTo(finFlowUser.getFirstName());
-        assertThat(responseDto.lastName()).isEqualTo(finFlowUser.getLastName());
         assertThat(responseDto.email()).isEqualTo(finFlowUser.getEmail());
-        assertThat(responseDto.phoneNumber()).isEqualTo(finFlowUser.getPhoneNumber());
 
         verify(finflowUserMapper).mapToEntity(finFlowUserRegisterDto);
         verify(finFlowUserRepository).add(finFlowUser);
