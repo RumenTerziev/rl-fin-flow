@@ -37,10 +37,17 @@ public class FinFlowUser implements UserDetails {
     }
 
     public void updatePassword(String password) {
-        if (password.isBlank()) {
+        if (password == null || password.isBlank()) {
             throw new IllegalArgumentException("Password cannot be blank!");
         }
         this.password = password;
+    }
+
+    public void updateEmail(String email) {
+        if (password == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email cannot be blank!");
+        }
+        this.email = email;
     }
 
     @Override
