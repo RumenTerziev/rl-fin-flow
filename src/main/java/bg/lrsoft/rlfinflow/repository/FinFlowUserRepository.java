@@ -36,4 +36,8 @@ public class FinFlowUserRepository {
     public void remove(String username) {
         finFlowUsers.remove(username);
     }
+
+    public void save(FinFlowUser finFlowUser) {
+        finFlowUsers.put(finFlowUser.getUsername(), finFlowUser);
+    }
 }

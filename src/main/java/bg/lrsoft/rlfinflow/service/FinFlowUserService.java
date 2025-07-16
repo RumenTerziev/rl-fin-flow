@@ -1,6 +1,7 @@
 package bg.lrsoft.rlfinflow.service;
 
 import bg.lrsoft.rlfinflow.config.mapper.FinFlowUserMapper;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserUpdateRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserRegisterDto;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserResponseDto;
 import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
@@ -87,5 +88,12 @@ public class FinFlowUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return finFlowUserRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username %s not found!".formatted(username)));
+    }
+
+    public void updateProfile(FinFlowUserUpdateRequestDto finFlowUserUpdateRequestDto) {
+        FinFlowUser authenticatedUser = getAuthenticatedUser();
+        authenticatedUser.updatePassword(this.passwordEncoder.encode(finFlowUserUpdateRequestDto.password()));
+        authenticatedUser.updateEmail(finFlowUserUpdateRequestDto.email());
+        finFlowUserRepository.save(authenticatedUser);
     }
 }
