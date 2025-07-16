@@ -22,10 +22,10 @@ import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
-@Tag(name = "Finances", description = "Finances operations APIs")
+@Tag(name = "Converter", description = "Converter operations APIs")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/finances")
+@RequestMapping("/converter")
 public class FinController {
 
     private final CurrencyService currencyService;
@@ -57,7 +57,7 @@ public class FinController {
                     )
             )
     })
-    @PostMapping("/converter")
+    @PostMapping
     public CurrencyResponseDto exchange(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
         return currencyService.processConvertRequest(currencyRequestDto);
     }

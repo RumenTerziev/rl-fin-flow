@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 
-public class FinanceManagementStepDefinition {
+public class ConversionManagementStepDefinition {
 
     private CurrencyCode fromCurrency;
 
@@ -95,7 +95,7 @@ public class FinanceManagementStepDefinition {
                         Map.of(toCurrency,
                                 new OpenConverterCurrencyRespDto(toCurrency, 0.50))), OK));
 
-        String url = "/finances/converter";
+        String url = "/converter";
 
         HttpHeaders postHeaders = new HttpHeaders();
         postHeaders.setContentType(MediaType.APPLICATION_JSON);

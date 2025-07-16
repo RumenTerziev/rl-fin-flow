@@ -56,7 +56,7 @@ public class FinControllerTest {
     @WithMockUser(username = "testuser", password = "1234", roles = "USER")
     void testExchange_whenGivenRequestDto_shouldReturnValidResult() throws Exception {
         //Given
-        String url = "/finances/converter";
+        String url = "/converter";
         String toCurrency = "EUR";
         String fromCurrency = "BGN";
         double amount = 20.0;
