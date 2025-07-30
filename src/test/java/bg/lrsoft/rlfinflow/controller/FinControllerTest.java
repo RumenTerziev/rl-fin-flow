@@ -40,8 +40,11 @@ public class FinControllerTest {
     @Autowired
     private RestService restService;
 
-    @MockBean
-    private CurrencyService currencyService;
+    @MockBean(name="OpenApiRateCurrencyService")
+    private CurrencyService openApiRateCurrencyService;
+
+    @MockBean(name="BNBRateCurrencyService")
+    private CurrencyService bnbRateCurrencyService;
 
     @MockBean
     private FinFlowUserService finFlowUserService;
@@ -56,7 +59,7 @@ public class FinControllerTest {
     @WithMockUser(username = "testuser", password = "1234", roles = "USER")
     void testExchange_whenGivenRequestDto_shouldReturnValidResult() throws Exception {
         //Given
-        String url = "/converter";
+        String url = "/converter/open-api-rates";
         String toCurrency = "EUR";
         String fromCurrency = "BGN";
         double amount = 20.0;
@@ -72,7 +75,7 @@ public class FinControllerTest {
         CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(BGN, EUR, amount);
 
         CurrencyResponseDto responseDto = new CurrencyResponseDto(BGN, EUR, amount, expectedResultSum, mockedExchangeRate);
-        when(currencyService.processConvertRequest(currencyRequestDto)).thenReturn(responseDto);
+        when(openApiRateCurrencyService.processConvertRequest(currencyRequestDto)).thenReturn(responseDto);
 
         //When
         ResultActions result = mockMvc.perform(post(url)

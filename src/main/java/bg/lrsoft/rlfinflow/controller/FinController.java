@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +23,18 @@ import java.util.List;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Tag(name = "Converter", description = "Converter operations APIs")
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/converter")
 public class FinController {
 
-    private final CurrencyService currencyService;
+    private final CurrencyService openApiRateCurrencyService;
+    private final CurrencyService bnbRatecurrencyService;
+
+    public FinController(@Qualifier("OpenApiRateCurrencyService") CurrencyService openApiRateCurrencyService,
+                         @Qualifier("BNBRateCurrencyService") CurrencyService bnbRatecurrencyService) {
+        this.openApiRateCurrencyService = openApiRateCurrencyService;
+        this.bnbRatecurrencyService = bnbRatecurrencyService;
+    }
 
     @Operation(description = "Convert currencies")
     @ApiResponses(value = {
@@ -57,9 +63,14 @@ public class FinController {
                     )
             )
     })
-    @PostMapping
-    public CurrencyResponseDto exchange(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
-        return currencyService.processConvertRequest(currencyRequestDto);
+    @PostMapping("/open-api-rates")
+    public CurrencyResponseDto exchangeByOpenApiRate(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
+        return openApiRateCurrencyService.processConvertRequest(currencyRequestDto);
+    }
+
+    @PostMapping("/bnb-rates")
+    public CurrencyResponseDto exchangeByBNBRate(@Valid @RequestBody CurrencyRequestDto currencyRequestDto) {
+        return bnbRatecurrencyService.processConvertRequest(currencyRequestDto);
     }
 
     @ApiResponses(value = {
@@ -90,7 +101,7 @@ public class FinController {
     })
     @GetMapping("/conversions")
     public List<ConversionResponseDto> getConversions() {
-        return currencyService.findAll();
+        return bnbRatecurrencyService.findAll();
     }
 
     @ApiResponses(value = {
@@ -122,6 +133,6 @@ public class FinController {
     @GetMapping("/conversions/mine")
     public PageResult<ConversionResponseDto> getMyConversions(
             @PageableDefault(sort = "createdAt", direction = DESC, size = 5) Pageable pageable) {
-        return currencyService.findByAuthenticatedUser(pageable);
+        return bnbRatecurrencyService.findByAuthenticatedUser(pageable);
     }
 }
