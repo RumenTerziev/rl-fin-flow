@@ -3,7 +3,7 @@ WORKDIR /workspace
 COPY . .
 RUN gradle bootJar
 
-FROM openjdk:21
+FROM eclipse-temurin:21-jre
 WORKDIR /rl-fin-flow-backend
 COPY --from=build /workspace/build/libs/*.jar app.jar
 
