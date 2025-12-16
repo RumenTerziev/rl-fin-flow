@@ -95,7 +95,7 @@ public class ConversionManagementStepDefinition {
                         Map.of(toCurrency,
                                 new OpenConverterCurrencyRespDto(toCurrency, 0.50))), OK));
 
-        String url = "/converter";
+        String url = "/converter/open-api-rates";
 
         HttpHeaders postHeaders = new HttpHeaders();
         postHeaders.setContentType(MediaType.APPLICATION_JSON);
