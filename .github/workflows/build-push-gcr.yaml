@@ -1,8 +1,8 @@
-name: Build and Push Docker Images to GHCR
+name: Build and Push Docker Images to GCR
 
 on:
   workflow_run:
-    workflows: ["Auto Tag and Release (MAJOR.MINOR)"]
+    workflows: [ "Auto Tag and Release (MAJOR.MINOR)" ]
     types:
       - completed
 
@@ -32,25 +32,30 @@ jobs:
         run: gradle build
 
       - name: Extract tag version
-        id: get_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0)
           echo "VERSION=${latest_tag}" >> $GITHUB_ENV
           echo "Latest tag is $latest_tag"
 
-      - name: Docker login to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker gcr.io --quiet
 
       - name: Build and Push Docker Images
         run: |
-          VERSION_IMAGE="ghcr.io/rumenterziev/dlrfinflow-api:${VERSION}"
-          LATEST_IMAGE="ghcr.io/rumenterziev/dlrfinflow-api:latest"
-          
-          echo "Building Docker image with tags: $VERSION_IMAGE and $LATEST_IMAGE"
+          VERSION_IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/dlrfinflow-api:${VERSION}"
+          LATEST_IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/dlrfinflow-api:latest"
+
+          echo "Building Docker image: $VERSION_IMAGE"
           docker build -t "$VERSION_IMAGE" -t "$LATEST_IMAGE" .
-          
+
           echo "Pushing $VERSION_IMAGE"
           docker push "$VERSION_IMAGE"
-          
+
           echo "Pushing $LATEST_IMAGE"
           docker push "$LATEST_IMAGE"
