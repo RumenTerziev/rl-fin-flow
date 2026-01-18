@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -80,7 +79,7 @@ public class FinFlowUserService implements UserDetailsService {
         log.info("Added first user to db!!! {}", finFlowUser);
     }
 
-    public FinFlowUser getAuthenticatedUser() {
+    public FinFlowUser getAuthenticatedFinFlowUser() {
         return Optional.ofNullable(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
                 .map(Authentication::getPrincipal)
@@ -96,7 +95,7 @@ public class FinFlowUserService implements UserDetailsService {
     }
 
     public void updateProfile(FinFlowUserUpdateRequestDto finFlowUserUpdateRequestDto) {
-        FinFlowUser authenticatedUser = getAuthenticatedUser();
+        FinFlowUser authenticatedUser = getAuthenticatedFinFlowUser();
         authenticatedUser.updatePassword(this.passwordEncoder.encode(finFlowUserUpdateRequestDto.password()));
         authenticatedUser.updateEmail(finFlowUserUpdateRequestDto.email());
         finFlowUserRepository.save(authenticatedUser);

@@ -34,7 +34,6 @@ public class OpenApiRateCurrencyService extends AbstractCurrencyService {
         super(finFlowUserService, conversionRepository, conversionMapper);
         this.restService = restService;
     }
-
     @Override
     public CurrencyResponseDto processConvertRequest(CurrencyRequestDto requestDto) {
         String fromCurrency = requestDto.fromCurrency().toString();

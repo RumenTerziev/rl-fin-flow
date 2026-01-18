@@ -34,7 +34,7 @@ public class AssistantService {
     }
 
     public ChatMessageResponseDto getChatResponseFromAi(ChatMessageRequestDto chatMessageRequestDto) {
-        FinFlowUser user = finFlowUserService.getAuthenticatedUser();
+        FinFlowUser user = finFlowUserService.getAuthenticatedFinFlowUser();
         String username = user.getUsername();
         String userInput = chatMessageRequestDto.prompt();
 
