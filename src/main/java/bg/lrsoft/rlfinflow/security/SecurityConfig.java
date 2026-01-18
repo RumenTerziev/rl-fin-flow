@@ -1,15 +1,15 @@
 package bg.lrsoft.rlfinflow.security;
 
+import bg.lrsoft.rlfinflow.service.FinFlowOauth2UserService;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,8 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
-
-import java.util.Collections;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
@@ -30,9 +28,12 @@ import static org.springframework.security.config.http.SessionCreationPolicy.IF_
 public class SecurityConfig {
 
     private final FinFlowUserService basicUserDetailsService;
+    private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
+    private final Oauth2LoginFailureHandler oauth2LoginFailureHandler;
+    private final FinFlowOauth2UserService finFlowOauth2UserService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, HttpSession httpSession) throws Exception {
 
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
@@ -44,7 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/users/me").hasAuthority("ROLE_USER")
+                        .requestMatchers("/auth/google").permitAll()
+                        .requestMatchers("/users/me").permitAll()
                         .requestMatchers("/converter/open-api-rates").hasAuthority("ROLE_USER")
                         .requestMatchers("/converter/bnb-rates").hasAuthority("ROLE_USER")
                         .requestMatchers("/converter/conversions/mine/**").hasAuthority("ROLE_USER")
@@ -53,16 +55,17 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/v3/api-docs/**").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED)
-                        .maximumSessions(2)
-                        .expiredUrl("/login?expired"))
-                .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(formLogin -> formLogin.loginProcessingUrl("/auth/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler())
                         .permitAll())
+                .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo
+                                .userService(finFlowOauth2UserService)
+                        )
+                        .successHandler(oauth2LoginSuccessHandler)
+                        .failureHandler(oauth2LoginFailureHandler))
                 .logout(logout -> logout.logoutUrl("/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> response.setStatus(SC_OK))
                         .invalidateHttpSession(true)
@@ -71,8 +74,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authManager(FinFlowUserService basicUserDetailsService) {
-        return new ProviderManager(Collections.singletonList(new UserBasicAuthProvider(basicUserDetailsService)));
+    public UserBasicAuthProvider userBasicAuthProvider() {
+        return new UserBasicAuthProvider(basicUserDetailsService);
     }
 
     @Bean

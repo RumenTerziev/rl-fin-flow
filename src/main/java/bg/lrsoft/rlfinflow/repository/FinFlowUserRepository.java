@@ -37,7 +37,15 @@ public class FinFlowUserRepository {
         finFlowUsers.remove(username);
     }
 
-    public void save(FinFlowUser finFlowUser) {
+    public FinFlowUser save(FinFlowUser finFlowUser) {
         finFlowUsers.put(finFlowUser.getUsername(), finFlowUser);
+        return finFlowUsers.get(finFlowUser.getUsername());
+    }
+
+    public Optional<FinFlowUser> findByEmail(String email) {
+        return finFlowUsers.values()
+                .stream()
+                .filter(user -> email.equals(user.getEmail()))
+                .findFirst();
     }
 }

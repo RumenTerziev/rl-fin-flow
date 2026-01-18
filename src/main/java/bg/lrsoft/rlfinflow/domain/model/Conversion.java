@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -45,5 +47,11 @@ public class Conversion {
         this.resultSum = resultSum;
         this.currencyRate = currencyRate;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public double getResultSum() {
+        return BigDecimal.valueOf(resultSum)
+                .setScale(4, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }

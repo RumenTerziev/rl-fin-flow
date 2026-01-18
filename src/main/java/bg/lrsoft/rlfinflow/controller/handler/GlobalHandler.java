@@ -11,8 +11,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -27,7 +26,7 @@ public class GlobalHandler {
         );
     }
 
-    @ResponseStatus(BAD_REQUEST)
+    @ResponseStatus(UNAUTHORIZED)
     @ExceptionHandler(NoUserLoggedInException.class)
     public ErrorPayloadDto handleNoUserLoggedInException(NoUserLoggedInException exception) {
         return new ErrorPayloadDto(

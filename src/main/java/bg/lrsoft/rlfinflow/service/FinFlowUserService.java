@@ -1,16 +1,18 @@
 package bg.lrsoft.rlfinflow.service;
 
 import bg.lrsoft.rlfinflow.config.mapper.FinFlowUserMapper;
-import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserUpdateRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserRegisterDto;
 import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserResponseDto;
+import bg.lrsoft.rlfinflow.domain.dto.FinFlowUserUpdateRequestDto;
 import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
+import bg.lrsoft.rlfinflow.security.FinFlowOath2User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,10 +59,12 @@ public class FinFlowUserService implements UserDetailsService {
     }
 
     public FinFlowUserResponseDto getMyProfile() {
-        Object details = SecurityContextHolder.getContext().getAuthentication().getDetails();
-        if (details instanceof UserDetails userDetails) {
-            FinFlowUser finFlowUser = (FinFlowUser) userDetails;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof FinFlowUser finFlowUser) {
             return mapper.mapToResponseDto(finFlowUser);
+        } else if (principal instanceof FinFlowOath2User oAuth2User) {
+            return mapper.mapToResponseDto(oAuth2User);
         }
         throw new NoUserLoggedInException();
     }
@@ -75,7 +79,7 @@ public class FinFlowUserService implements UserDetailsService {
         log.info("Added first user to db!!! {}", finFlowUser);
     }
 
-    public FinFlowUser getAuthenticatedUser() {
+    public FinFlowUser getAuthenticatedFinFlowUser() {
         return Optional.ofNullable(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
                 .map(Authentication::getPrincipal)
@@ -91,9 +95,21 @@ public class FinFlowUserService implements UserDetailsService {
     }
 
     public void updateProfile(FinFlowUserUpdateRequestDto finFlowUserUpdateRequestDto) {
-        FinFlowUser authenticatedUser = getAuthenticatedUser();
+        FinFlowUser authenticatedUser = getAuthenticatedFinFlowUser();
         authenticatedUser.updatePassword(this.passwordEncoder.encode(finFlowUserUpdateRequestDto.password()));
         authenticatedUser.updateEmail(finFlowUserUpdateRequestDto.email());
         finFlowUserRepository.save(authenticatedUser);
+    }
+
+    public FinFlowUser saveLoggedUser(@AuthenticationPrincipal FinFlowOath2User principal) {
+        if (principal == null) {
+            log.debug("No authenticated user to save, returning null");
+            return null;
+        }
+
+        log.info("Persisting user: {}", principal.getEmail());
+
+        return finFlowUserRepository.findByEmail(principal.getEmail())
+                .orElseGet(() -> finFlowUserRepository.save(mapper.fromPrincipal(principal)));
     }
 }

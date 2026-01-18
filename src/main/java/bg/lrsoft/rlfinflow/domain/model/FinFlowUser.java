@@ -1,9 +1,12 @@
 package bg.lrsoft.rlfinflow.domain.model;
 
+import bg.lrsoft.rlfinflow.security.FinFlowOath2User;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -48,6 +51,14 @@ public class FinFlowUser implements UserDetails {
             throw new IllegalArgumentException("Email cannot be blank!");
         }
         this.email = email;
+    }
+
+    public void updateFromPrincipal(FinFlowOath2User principal) {
+        this.username = principal.getAttribute("name");
+
+        authorities.clear();
+        principal.getAuthorities()
+                .forEach(a -> authorities.add(new SimpleGrantedAuthority(a.getAuthority())));
     }
 
     @Override

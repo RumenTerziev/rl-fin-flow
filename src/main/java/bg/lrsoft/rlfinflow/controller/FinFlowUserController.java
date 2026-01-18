@@ -46,7 +46,6 @@ public class FinFlowUserController {
         return finFlowUserService.getMyProfile();
     }
 
-
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
