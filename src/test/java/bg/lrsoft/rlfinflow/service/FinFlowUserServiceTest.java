@@ -41,7 +41,8 @@ class FinFlowUserServiceTest {
         when(finflowUserMapper.mapToResponseDto(finFlowUser))
                 .thenReturn(new FinFlowUserResponseDto(
                         username,
-                        email));
+                        email,
+                        ""));
 
         //When
         FinFlowUserResponseDto responseDto = finFlowUserService.registerUser(finFlowUserRegisterDto);
