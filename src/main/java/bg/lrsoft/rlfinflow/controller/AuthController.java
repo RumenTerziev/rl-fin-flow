@@ -9,12 +9,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth", description = "Authentication APIs")
 @RestController
@@ -22,7 +22,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private static final String GOOGLE_LOGIN_ENDPOINT = "/api/v1/oauth2/authorization/google";
     private final FinFlowUserService finFlowUserService;
 
     @ApiResponses(value = {
@@ -42,10 +41,5 @@ public class AuthController {
     @PostMapping("/register")
     public FinFlowUserResponseDto register(@Valid @RequestBody FinFlowUserRegisterDto finFlowUserImportDto) {
         return finFlowUserService.registerUser(finFlowUserImportDto);
-    }
-
-    @GetMapping("/google")
-    public void redirectToGoogle(HttpServletResponse response) throws IOException {
-        response.sendRedirect(GOOGLE_LOGIN_ENDPOINT);
     }
 }

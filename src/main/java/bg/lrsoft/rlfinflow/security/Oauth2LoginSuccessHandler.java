@@ -1,5 +1,7 @@
 package bg.lrsoft.rlfinflow.security;
 
+import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
+import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,15 +22,24 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Value("${app.login-redirect-props.redirect-url}")
     private String loginRedirectUrl;
 
+    private final FinFlowUserService userService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        log.debug("authentication success, {}", authentication.getAuthorities());
+        log.debug("Authentication success, authorities: {}", authentication.getAuthorities());
         log.info("Successfully logged in as {}", authentication.getName());
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.sendRedirect("%s/profile".formatted(loginRedirectUrl));
+
+        Object principalObj = authentication.getPrincipal();
+        if (!(principalObj instanceof FinFlowOath2User principal)) {
+            log.warn("Principal is not a SmartPrintsOAuth2User: {}", principalObj);
+            super.onAuthenticationSuccess(request, response, authentication);
+            return;
+        }
+
+        FinFlowUser user = userService.saveLoggedUser(principal);
+        log.info("Logged-in user persisted: {}", user);
+        response.sendRedirect("%s/applications".formatted(loginRedirectUrl));
     }
 }
