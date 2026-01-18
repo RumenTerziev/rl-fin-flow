@@ -12,6 +12,7 @@ import bg.lrsoft.rlfinflow.security.FinFlowOath2User;
 import bg.lrsoft.rlfinflow.service.CurrencyService;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractCurrencyService implements CurrencyService {
 
@@ -52,6 +54,7 @@ public abstract class AbstractCurrencyService implements CurrencyService {
         double convertedSum = amount * rate;
         double roundedSum = new BigDecimal(convertedSum).setScale(4, RoundingMode.HALF_UP).doubleValue();
         double roundedCurrencyRate = new BigDecimal(rate).setScale(4, RoundingMode.HALF_UP).doubleValue();
+        log.info("TO CURRENCY: {}", toCurrency);
         return new CurrencyResponseDto(
                 CurrencyCode.valueOf(fromCurrency),
                 CurrencyCode.valueOf(toCurrency),
