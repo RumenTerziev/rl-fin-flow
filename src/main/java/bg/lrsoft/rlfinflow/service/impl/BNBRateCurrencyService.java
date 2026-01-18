@@ -1,15 +1,15 @@
 package bg.lrsoft.rlfinflow.service.impl;
 
 import bg.lrsoft.rlfinflow.config.mapper.ConversionMapper;
+import bg.lrsoft.rlfinflow.config.properties.BNBCurrencyRateConfig;
+import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
 import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
 import bg.lrsoft.rlfinflow.repository.ConversionRepository;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,83 +19,88 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URL;
 
+@Slf4j
 @Service
 @Qualifier("BNBRateCurrencyService")
 public class BNBRateCurrencyService extends AbstractCurrencyService {
 
-    private static final Logger log = LoggerFactory.getLogger(BNBRateCurrencyService.class);
 
-    @Value("${bnb.currency.rate.url}")
-    private String bnbCurrencyRateUrl;
-
-    @Value("${bnb.currency.rate.euro-fixing}")
-    private double euroFixing;
+    private final BNBCurrencyRateConfig bnbCurrencyRateConfig;
+    private final OpenApiRateCurrencyService openApiRateCurrencyService;
 
     @Autowired
     public BNBRateCurrencyService(FinFlowUserService finFlowUserService,
+                                  OpenApiRateCurrencyService openApiRateCurrencyService,
                                   ConversionRepository conversionRepository,
-                                  ConversionMapper conversionMapper) {
+                                  ConversionMapper conversionMapper,
+                                  BNBCurrencyRateConfig bnbCurrencyRateConfig) {
         super(finFlowUserService, conversionRepository, conversionMapper);
+        this.bnbCurrencyRateConfig = bnbCurrencyRateConfig;
+        this.openApiRateCurrencyService = openApiRateCurrencyService;
     }
 
     @Override
     public CurrencyResponseDto processConvertRequest(CurrencyRequestDto requestDto) {
-        final String euroCode = "EUR";
-        final String bgnCode = "BGN";
-        String desiredCode = "";
-        double desiredRate = 0.0;
-
-        if (euroCode.equals(requestDto.toCurrency().toString())) {
-            desiredCode = euroCode;
-            desiredRate = euroFixing;
-            log.debug("{} fix: {}", euroCode, euroFixing);
-            CurrencyResponseDto currencyResponseDto = getCurrencyResponseDto(bgnCode, desiredCode, requestDto.amount(), desiredRate);
-            conversionRepository.save(getConversionFromRespDto(currencyResponseDto));
-            return currencyResponseDto;
+        if (requestDto.fromCurrency() != CurrencyCode.BGN && requestDto.toCurrency() != CurrencyCode.BGN) {
+            return openApiRateCurrencyService.processConvertRequest(requestDto);
         }
 
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(new URL(bnbCurrencyRateUrl).openStream());
-            doc.getDocumentElement().normalize();
+        CurrencyCode from = requestDto.fromCurrency();
+        CurrencyCode to = requestDto.toCurrency();
+        double amount = requestDto.amount();
 
-            NodeList rows = doc.getElementsByTagName("ROW");
+        double result;
+        double rate;
 
-            for (int index = 0; index < rows.getLength(); index++) {
-                Element row = (Element) rows.item(index);
-
-                String code = getTextContent(row, "CODE");
-                String ratioStr = getTextContent(row, "RATIO");
-                String rateStr = getTextContent(row, "RATE");
-                String reverse = getTextContent(row, "REVERSERATE");
-
-                if (code == null || ratioStr == null || rateStr == null || reverse == null) {
-                    log.warn("Skipping malformed row at index {}, Code: {}, Ratio: {}, rate: {}, reverse: {}",
-                            index, code, ratioStr, rateStr, reverse);
-                    continue;
-                }
-
-                if (requestDto.toCurrency().toString().equals(code)) {
-                    desiredCode = code;
-                    desiredRate = Double.parseDouble(rateStr);
-                    log.debug("{} – {} unit(s): {} BGN (Reverse: {})",
-                            code, ratioStr, rateStr, reverse);
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            log.error("Error processing BNB currency rates: {}", e.getMessage(), e);
+        if (from == CurrencyCode.EUR) {
+            rate = bnbCurrencyRateConfig.getEuroFixing();
+            result = amount * rate;
+        } else if (from == CurrencyCode.BGN && to == CurrencyCode.EUR) {
+            rate = bnbCurrencyRateConfig.getEuroFixing();
+            result = amount / rate;
+        } else if (to == CurrencyCode.BGN) {
+            rate = getBgnRateFor(from);
+            result = amount * rate;
+        } else {
+            rate = getBgnRateFor(to);
+            result = amount / rate;
         }
 
-        CurrencyResponseDto currencyResponseDto = getCurrencyResponseDto(bgnCode, desiredCode, requestDto.amount(), desiredRate);
-        conversionRepository.save(getConversionFromRespDto(currencyResponseDto));
-        return currencyResponseDto;
+        CurrencyResponseDto dto = new CurrencyResponseDto(from, to, amount, result, rate);
+
+        conversionRepository.save(getConversionFromRespDto(dto));
+        return dto;
     }
 
     private String getTextContent(Element parent, String tagName) {
         NodeList list = parent.getElementsByTagName(tagName);
         return (list.getLength() > 0 && list.item(0) != null) ? list.item(0).getTextContent() : null;
     }
+
+    private double getBgnRateFor(CurrencyCode currency) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new URL(bnbCurrencyRateConfig.getUrl()).openStream());
+            doc.getDocumentElement().normalize();
+
+            NodeList rows = doc.getElementsByTagName("ROW");
+
+            for (int i = 0; i < rows.getLength(); i++) {
+                Element row = (Element) rows.item(i);
+                String code = getTextContent(row, "CODE");
+                String rate = getTextContent(row, "RATE");
+
+                if (currency.name().equals(code)) {
+                    return Double.parseDouble(rate);
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load BNB rates", e);
+        }
+
+        throw new IllegalStateException("No BNB rate for " + currency);
+    }
+
 }

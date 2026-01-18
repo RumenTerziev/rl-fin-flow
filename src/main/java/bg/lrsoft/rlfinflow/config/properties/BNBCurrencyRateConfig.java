@@ -14,4 +14,6 @@ public class BNBCurrencyRateConfig {
     private String url;
 
     private double euroFixing;
+
+    private double toEuroFixing;
 }
