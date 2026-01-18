@@ -1,5 +1,6 @@
 package bg.lrsoft.rlfinflow.security;
 
+import bg.lrsoft.rlfinflow.config.properties.AppSecurityProps;
 import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,12 +14,19 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
@@ -30,6 +38,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.IF_
 public class SecurityConfig {
 
     private final FinFlowUserService basicUserDetailsService;
+    private final AppSecurityProps appSecurityProps;
+    private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
+    private final Oauth2LoginFailureHandler oauth2LoginFailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -44,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/google").permitAll()
                         .requestMatchers("/users/me").hasAuthority("ROLE_USER")
                         .requestMatchers("/converter/open-api-rates").hasAuthority("ROLE_USER")
                         .requestMatchers("/converter/bnb-rates").hasAuthority("ROLE_USER")
@@ -56,13 +68,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED)
                         .maximumSessions(2)
                         .expiredUrl("/login?expired"))
-                .authenticationManager(authManager(basicUserDetailsService))
                 .formLogin(formLogin -> formLogin.loginProcessingUrl("/auth/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler())
                         .permitAll())
+                .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService())
+                        )
+                        .successHandler(oauth2LoginSuccessHandler)
+                        .failureHandler(oauth2LoginFailureHandler))
                 .logout(logout -> logout.logoutUrl("/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> response.setStatus(SC_OK))
                         .invalidateHttpSession(true)
@@ -71,8 +87,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authManager(FinFlowUserService basicUserDetailsService) {
-        return new ProviderManager(Collections.singletonList(new UserBasicAuthProvider(basicUserDetailsService)));
+    public UserBasicAuthProvider userBasicAuthProvider() {
+        return new UserBasicAuthProvider(basicUserDetailsService);
     }
 
     @Bean
@@ -91,6 +107,29 @@ public class SecurityConfig {
                 log.info("REQUEST -> {}", request.getRequestURI());
             }
             filterChain.doFilter(servletRequest, servletResponse);
+        };
+    }
+
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService() {
+        return new OAuth2UserService<>() {
+            private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+
+            @Override
+            public OAuth2User loadUser(OAuth2UserRequest userRequest) {
+                OAuth2User user = delegate.loadUser(userRequest);
+
+                Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+                String email = user.getAttribute("email");
+
+                if (appSecurityProps.getAdminUserEmail().equals(email)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                }
+
+                return new DefaultOAuth2User(authorities, user.getAttributes(), "email");
+            }
         };
     }
 }

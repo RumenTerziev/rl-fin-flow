@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,6 +63,8 @@ public class FinFlowUserService implements UserDetailsService {
         if (details instanceof UserDetails userDetails) {
             FinFlowUser finFlowUser = (FinFlowUser) userDetails;
             return mapper.mapToResponseDto(finFlowUser);
+        } else if (details instanceof OAuth2User oAuth2User) {
+            return mapper.mapToResponseDto(oAuth2User);
         }
         throw new NoUserLoggedInException();
     }

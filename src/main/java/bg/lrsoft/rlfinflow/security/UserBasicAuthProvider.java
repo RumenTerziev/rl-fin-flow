@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 @Slf4j
 @RequiredArgsConstructor
-class UserBasicAuthProvider implements AuthenticationProvider {
+public class UserBasicAuthProvider implements AuthenticationProvider {
 
     private final FinFlowUserService basicUserDetailsService;
 

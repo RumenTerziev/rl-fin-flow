@@ -14,6 +14,12 @@ public record FinFlowUserResponseDto(
                 description = "Email of the user",
                 example = "tommyj@example.com"
         )
-        String email
+        String email,
+
+        @Schema(
+                description = "Picture of the user",
+                example = "https://path-to-your-picture.com"
+        )
+        String pictureUrl
 ) {
 }
