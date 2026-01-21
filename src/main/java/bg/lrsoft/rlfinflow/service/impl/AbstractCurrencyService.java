@@ -84,4 +84,10 @@ public abstract class AbstractCurrencyService implements CurrencyService {
         }
         return loggedUser;
     }
+
+    protected static Double getRoundedValue(Double value, int precision) {
+        return BigDecimal.valueOf(value)
+                .setScale(precision, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
 }

@@ -26,48 +26,25 @@ public class BNBRateCurrencyService extends AbstractCurrencyService {
 
 
     private final BNBCurrencyRateConfig bnbCurrencyRateConfig;
-    private final OpenApiRateCurrencyService openApiRateCurrencyService;
 
     @Autowired
     public BNBRateCurrencyService(FinFlowUserService finFlowUserService,
-                                  OpenApiRateCurrencyService openApiRateCurrencyService,
                                   ConversionRepository conversionRepository,
                                   ConversionMapper conversionMapper,
                                   BNBCurrencyRateConfig bnbCurrencyRateConfig) {
         super(finFlowUserService, conversionRepository, conversionMapper);
         this.bnbCurrencyRateConfig = bnbCurrencyRateConfig;
-        this.openApiRateCurrencyService = openApiRateCurrencyService;
     }
 
     @Override
     public CurrencyResponseDto processConvertRequest(CurrencyRequestDto requestDto) {
-        if (requestDto.fromCurrency() != CurrencyCode.BGN && requestDto.toCurrency() != CurrencyCode.BGN) {
-            return openApiRateCurrencyService.processConvertRequest(requestDto);
-        }
-
         CurrencyCode from = requestDto.fromCurrency();
         CurrencyCode to = requestDto.toCurrency();
         double amount = requestDto.amount();
-
-        double result;
-        double rate;
-
-        if (from == CurrencyCode.EUR) {
-            rate = bnbCurrencyRateConfig.getEuroFixing();
-            result = amount * rate;
-        } else if (from == CurrencyCode.BGN && to == CurrencyCode.EUR) {
-            rate = bnbCurrencyRateConfig.getEuroFixing();
-            result = amount / rate;
-        } else if (to == CurrencyCode.BGN) {
-            rate = getBgnRateFor(from);
-            result = amount * rate;
-        } else {
-            rate = getBgnRateFor(to);
-            result = amount / rate;
-        }
-
-        CurrencyResponseDto dto = new CurrencyResponseDto(from, to, amount, result, rate);
-
+        double amountInEur = amount / getRateFromEur(from);
+        double result = amountInEur * getRateFromEur(to);
+        double rate = result / amount;
+        CurrencyResponseDto dto = new CurrencyResponseDto(from, to, amount, result, getRoundedValue(rate, 4));
         conversionRepository.save(getConversionFromRespDto(dto));
         return dto;
     }
@@ -77,23 +54,36 @@ public class BNBRateCurrencyService extends AbstractCurrencyService {
         return (list.getLength() > 0 && list.item(0) != null) ? list.item(0).getTextContent() : null;
     }
 
-    private double getBgnRateFor(CurrencyCode currency) {
+
+    private double getRateFromEur(CurrencyCode currency) {
+        if (currency == CurrencyCode.EUR) {
+            return 1.0;
+        }
+
+        if (currency == CurrencyCode.BGN) {
+            return bnbCurrencyRateConfig.getEuroFixing();
+        }
+
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(new URL(bnbCurrencyRateConfig.getUrl()).openStream());
+
+            Document doc = builder.parse(
+                    new URL(bnbCurrencyRateConfig.getUrl()).openStream()
+            );
             doc.getDocumentElement().normalize();
 
             NodeList rows = doc.getElementsByTagName("ROW");
 
             for (int i = 0; i < rows.getLength(); i++) {
                 Element row = (Element) rows.item(i);
+
                 String code = getTextContent(row, "CODE");
                 String rate = getTextContent(row, "RATE");
 
-                if (currency.name().equals(code)) {
-                    return Double.parseDouble(rate);
+                if (currency.name().equals(code) && rate != null) {
+                    return getRoundedValue(Double.parseDouble(rate), 6);
                 }
             }
         } catch (Exception e) {
@@ -102,5 +92,4 @@ public class BNBRateCurrencyService extends AbstractCurrencyService {
 
         throw new IllegalStateException("No BNB rate for " + currency);
     }
-
 }
