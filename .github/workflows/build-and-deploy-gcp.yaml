@@ -1,0 +1,98 @@
+name: Build and Push Docker Images to GCR
+
+on:
+  workflow_run:
+    workflows: [ "Auto Tag and Release (MAJOR.MINOR)" ]
+    types:
+      - completed
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  REGISTRY: gcr.io
+  IMAGE: dlrfinflow-api
+
+jobs:
+  build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 8.7
+
+      - name: Build Gradle project
+        run: gradle build -x test
+
+      - name: Extract tag version
+        id: extract_version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "${GITHUB_SHA::7}")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Latest tag is $VERSION"
+
+      - name: Authenticate to GCP via Workload Identity
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      - name: Build and Push Docker Images
+        run: |
+          IMAGE_BASE=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE }}
+          echo "Building Docker image: ${IMAGE_BASE}:${VERSION}"
+          docker build \
+            -t ${IMAGE_BASE}:${VERSION} \
+            -t ${IMAGE_BASE}:latest \
+            .
+          docker push ${IMAGE_BASE}:${VERSION}
+          docker push ${IMAGE_BASE}:latest
+
+  deploy-to-gcp:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to GCP via Workload Identity
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Deploy to Cloud Run
+        env:
+          VERSION: ${{ needs.build-and-push.outputs.version }}
+        run: |
+          gcloud run deploy ${{ env.IMAGE }} \
+            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE }}:${VERSION} \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --project=${{ env.PROJECT_ID }}
