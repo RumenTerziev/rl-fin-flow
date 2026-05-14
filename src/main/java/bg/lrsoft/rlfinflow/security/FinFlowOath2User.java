@@ -33,6 +33,11 @@ public class FinFlowOath2User implements OAuth2User {
         return authorities;
     }
 
+    /**
+     * Stable username used as the audit key on conversions / chat history.
+     * We use the verified email (it is unique per Google account); the display name
+     * is exposed separately via the {@code name} attribute.
+     */
     @Override
     public String getName() {
         return email;

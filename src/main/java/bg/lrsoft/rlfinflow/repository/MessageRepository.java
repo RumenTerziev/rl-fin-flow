@@ -9,4 +9,8 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<ChatMessage, Long> {
     List<ChatMessage> findTop20ByUsernameOrderByTimestampDesc(String username);
+
+    List<ChatMessage> findAllByUsernameOrderByTimestampAsc(String username);
+
+    void deleteByUsername(String username);
 }

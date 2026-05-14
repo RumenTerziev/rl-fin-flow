@@ -7,9 +7,9 @@ import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,7 +35,8 @@ public class AssistantService {
 
     public ChatMessageResponseDto getChatResponseFromAi(ChatMessageRequestDto chatMessageRequestDto) {
         FinFlowUser user = finFlowUserService.getAuthenticatedFinFlowUser();
-        String username = user.getUsername();
+        // Use the verified email as the audit key: display names are not unique and may change.
+        String username = user.getEmail();
         String userInput = chatMessageRequestDto.prompt();
 
         saveMessage(username, "user", userInput);

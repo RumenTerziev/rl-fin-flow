@@ -1,8 +1,8 @@
 package bg.lrsoft.rlfinflow.controller;
 
 import bg.lrsoft.rlfinflow.domain.dto.*;
-import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import bg.lrsoft.rlfinflow.service.CurrencyService;
+import bg.lrsoft.rlfinflow.service.FinFlowUserService;
 import bg.lrsoft.rlfinflow.service.RestService;
 import bg.lrsoft.rlfinflow.testconfig.TestConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;

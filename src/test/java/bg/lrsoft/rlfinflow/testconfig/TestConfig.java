@@ -1,6 +1,7 @@
 package bg.lrsoft.rlfinflow.testconfig;
 
 import bg.lrsoft.rlfinflow.config.AppConfig;
+import bg.lrsoft.rlfinflow.config.properties.CorsProperties;
 import bg.lrsoft.rlfinflow.security.Oauth2LoginFailureHandler;
 import bg.lrsoft.rlfinflow.security.Oauth2LoginSuccessHandler;
 import bg.lrsoft.rlfinflow.security.SecurityConfig;
@@ -8,11 +9,11 @@ import bg.lrsoft.rlfinflow.service.FinFlowOauth2UserService;
 import bg.lrsoft.rlfinflow.service.RestService;
 import bg.lrsoft.rlfinflow.service.impl.RestRequestService;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @TestConfiguration
+@EnableConfigurationProperties(CorsProperties.class)
 @Import(value = {SecurityConfig.class, AppConfig.class})
 public class TestConfig {
 

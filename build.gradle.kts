@@ -22,6 +22,7 @@ extra["springAiVersion"] = "1.0.0-M6"
 dependencyManagement {
     imports {
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
+        mavenBom("com.google.cloud:spring-cloud-gcp-dependencies:4.8.4")
     }
 }
 
@@ -39,6 +40,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-sql-mysql")
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -59,6 +61,19 @@ dependencies {
     testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
     testImplementation("com.h2database:h2:2.2.220")
+}
+
+// Strip Spring Cloud GCP from the test classpath so its env post-processors
+// (which require Cloud SQL env vars) don't run during tests.
+configurations.named("testRuntimeClasspath") {
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter-sql-mysql")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-autoconfigure")
+}
+configurations.named("testCompileClasspath") {
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter-sql-mysql")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-autoconfigure")
 }
 
 tasks.withType<Test> {
