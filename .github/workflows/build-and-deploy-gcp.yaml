@@ -89,12 +89,23 @@ jobs:
         env:
           VERSION: ${{ needs.build-and-push.outputs.version }}
           SECRETS_MAPPING: >-
-            DB_DATABASE=DB_DATABASE:latest,CLOUD_SQL_INSTANCE=CLOUD_SQL_INSTANCE:latest,DB_USERNAME=DB_USERNAME:latest,DB_PASSWORD=DB_PASSWORD:latest,OPEN_AI_API_KEY=OPEN_AI_API_KEY:latest,ALLOWED_ORIGINS=ALLOWED_ORIGINS:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,GOOGLE_TOKEN_URI=GOOGLE_TOKEN_URI:latest
+            DB_DATABASE=DB_DATABASE:latest,CLOUD_SQL_INSTANCE=CLOUD_SQL_INSTANCE:latest,DB_USERNAME=DB_USERNAME:latest,DB_PASSWORD=DB_PASSWORD:latest,OPEN_AI_API_KEY=OPEN_AI_API_KEY:latest,ALLOWED_ORIGINS=ALLOWED_ORIGINS:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,GOOGLE_TOKEN_URI=GOOGLE_TOKEN_URI:latest,BNB_CURRENCY_RATE_URL=BNB_CURRENCY_RATE_URL:latest,OPEN_EXCHANGE_CURRENCY_CONVERTOR_URL=OPEN_EXCHANGE_CURRENCY_CONVERTOR_URL:latest,OPEN_AI_CHAT_MODEL=OPEN_AI_CHAT_MODEL:latest,ADMIN_NAME=ADMIN_NAME:latest,ADMIN_EMAIL=ADMIN_EMAIL:latest,ADMIN_PICTURE_URL=ADMIN_PICTURE_URL:latest
         run: |
           gcloud run deploy ${{ env.IMAGE }} \
             --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE }}:${VERSION} \
             --region=${{ env.REGION }} \
             --platform=managed \
             --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
-            --allow-unauthenticated \
+            --add-cloudsql-instances=${{ secrets.CLOUD_SQL_INSTANCE }} \
+            --network=YOUR_VPC_NAME \
+            --subnet=YOUR_SUBNET_NAME \
+            --vpc-egress=all-traffic \
+            --ingress=internal \
+            --no-allow-unauthenticated \
+            --port=8080 \
+            --memory=2Gi \
+            --cpu=1 \
+            --timeout=300 \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,DDL_STRATEGY=none" \
+            --set-secrets="${SECRETS_MAPPING}" \
             --project=${{ env.PROJECT_ID }}
