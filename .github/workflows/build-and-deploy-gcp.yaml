@@ -97,8 +97,8 @@ jobs:
             --platform=managed \
             --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --add-cloudsql-instances=${{ secrets.CLOUD_SQL_INSTANCE }} \
-            --network=YOUR_VPC_NAME \
-            --subnet=YOUR_SUBNET_NAME \
+            --network=${{ secrets.GCP_VPC }} \
+            --subnet=${{ secrets.GCP_SUB }} \
             --vpc-egress=all-traffic \
             --ingress=internal \
             --no-allow-unauthenticated \
