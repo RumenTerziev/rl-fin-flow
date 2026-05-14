@@ -1,11 +1,7 @@
 package bg.lrsoft.rlfinflow.cucumber.steps;
 
 import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
-import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
-import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
-import bg.lrsoft.rlfinflow.domain.dto.ExchangeRespDto;
-import bg.lrsoft.rlfinflow.domain.dto.MetaInfDto;
-import bg.lrsoft.rlfinflow.domain.dto.OpenConverterCurrencyRespDto;
+import bg.lrsoft.rlfinflow.domain.dto.*;
 import bg.lrsoft.rlfinflow.service.RestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,11 +11,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -6,7 +6,6 @@ import bg.lrsoft.rlfinflow.domain.exception.NoUserLoggedInException;
 import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
 import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
 import bg.lrsoft.rlfinflow.security.FinFlowOath2User;
-import bg.lrsoft.rlfinflow.security.Oauth2LoginFailureHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

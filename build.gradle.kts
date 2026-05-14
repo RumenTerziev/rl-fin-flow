@@ -63,6 +63,19 @@ dependencies {
     testImplementation("com.h2database:h2:2.2.220")
 }
 
+// Strip Spring Cloud GCP from the test classpath so its env post-processors
+// (which require Cloud SQL env vars) don't run during tests.
+configurations.named("testRuntimeClasspath") {
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter-sql-mysql")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-autoconfigure")
+}
+configurations.named("testCompileClasspath") {
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter-sql-mysql")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter")
+    exclude(group = "com.google.cloud", module = "spring-cloud-gcp-autoconfigure")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
