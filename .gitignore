@@ -47,3 +47,7 @@ mvnw.cmd
 target/
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+.ai-instructions
+docker-compose.yaml
+.dockerignore

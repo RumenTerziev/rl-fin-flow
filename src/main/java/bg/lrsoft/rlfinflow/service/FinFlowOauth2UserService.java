@@ -14,9 +14,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class FinFlowOauth2UserService implements OAuth2UserService<OAuth2UserReq
             throw new OAuth2AuthenticationException("Email missing");
         }
 
-        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        java.util.HashSet<SimpleGrantedAuthority> authorities = new java.util.HashSet<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
         if (adminEmails.contains(email)) {
@@ -63,4 +61,5 @@ public class FinFlowOauth2UserService implements OAuth2UserService<OAuth2UserReq
         user.updateFromPrincipal(principal);
         userRepository.save(user);
     }
+
 }

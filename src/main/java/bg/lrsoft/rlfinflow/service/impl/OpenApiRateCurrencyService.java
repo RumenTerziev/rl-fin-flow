@@ -44,7 +44,7 @@ public class OpenApiRateCurrencyService extends AbstractCurrencyService {
                 .toList();
 
         CurrencyResponseDto currencyResponseDto = mapResponseFromOpenApi(requestDto, allCurrencyValues, fromCurrency);
-        conversionRepository.save(getConversionFromRespDto(currencyResponseDto));
+        persistIfAuthenticated(currencyResponseDto);
         return currencyResponseDto;
     }
 

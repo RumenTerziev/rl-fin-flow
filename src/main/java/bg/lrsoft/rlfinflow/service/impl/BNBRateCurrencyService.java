@@ -45,7 +45,7 @@ public class BNBRateCurrencyService extends AbstractCurrencyService {
         double result = amountInEur * getRateFromEur(to);
         double rate = result / amount;
         CurrencyResponseDto dto = new CurrencyResponseDto(from, to, amount, result, getRoundedValue(rate, 4));
-        conversionRepository.save(getConversionFromRespDto(dto));
+        persistIfAuthenticated(dto);
         return dto;
     }
 

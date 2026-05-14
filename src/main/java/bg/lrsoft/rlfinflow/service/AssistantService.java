@@ -35,7 +35,8 @@ public class AssistantService {
 
     public ChatMessageResponseDto getChatResponseFromAi(ChatMessageRequestDto chatMessageRequestDto) {
         FinFlowUser user = finFlowUserService.getAuthenticatedFinFlowUser();
-        String username = user.getUsername();
+        // Use the verified email as the audit key: display names are not unique and may change.
+        String username = user.getEmail();
         String userInput = chatMessageRequestDto.prompt();
 
         saveMessage(username, "user", userInput);

@@ -1,9 +1,11 @@
 package bg.lrsoft.rlfinflow.cucumber.steps;
 
 import bg.lrsoft.rlfinflow.domain.constant.CurrencyCode;
-import bg.lrsoft.rlfinflow.domain.dto.*;
-import bg.lrsoft.rlfinflow.domain.model.FinFlowUser;
-import bg.lrsoft.rlfinflow.repository.FinFlowUserRepository;
+import bg.lrsoft.rlfinflow.domain.dto.CurrencyRequestDto;
+import bg.lrsoft.rlfinflow.domain.dto.CurrencyResponseDto;
+import bg.lrsoft.rlfinflow.domain.dto.ExchangeRespDto;
+import bg.lrsoft.rlfinflow.domain.dto.MetaInfDto;
+import bg.lrsoft.rlfinflow.domain.dto.OpenConverterCurrencyRespDto;
 import bg.lrsoft.rlfinflow.service.RestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,14 +14,12 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,41 +32,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 
+/**
+ * End-to-end exercise of the converter for the anonymous flow: per the new GDPR design,
+ * the converter endpoint is callable without authentication and nothing is persisted.
+ */
 public class ConversionManagementStepDefinition {
 
     private CurrencyCode fromCurrency;
-
     private CurrencyCode toCurrency;
-
     private double amount;
-
     private ResponseEntity<CurrencyResponseDto> response;
-
-    private final PasswordEncoder passwordEncoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-
-    @Value("${first.fin-flow.user.username}")
-    private String firstUserUsername;
-
-    @Value("${first.fin-flow.user.password}")
-    private String firstUserPassword;
-
-    @Value("${first.fin-flow.user.email}")
-    private String firstUserEmail;
-
-    @Value("${first.fin-flow.user.authorities}")
-    private List<String> firstUserAuthorities;
-
-    @Value("${open.exchange.currency.convertor.url}")
-    private String openExchangeUrl;
 
     @Autowired
     private RestService restService;
 
     @Autowired
     private TestRestTemplate testRestTemplate;
-
-    @Autowired
-    private FinFlowUserRepository finFlowUserRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -83,59 +64,30 @@ public class ConversionManagementStepDefinition {
     }
 
     @When("^I make a request to convert them$")
-    public void I_make_a_request_to_convert_them() {
-
-        initialize();
-        ResponseEntity<Void> loginResponse = login();
-
-        String toCurrency = this.toCurrency.toString();
+    public void i_make_a_request_to_convert_them() {
+        String toCurrencyCode = this.toCurrency.toString();
 
         when(restService.getForEntity(anyString(), eq(ExchangeRespDto.class)))
-                .thenReturn(new ResponseEntity<>(new ExchangeRespDto(new MetaInfDto(LocalDateTime.now()),
-                        Map.of(toCurrency,
-                                new OpenConverterCurrencyRespDto(toCurrency, 0.50))), OK));
+                .thenReturn(new ResponseEntity<>(new ExchangeRespDto(
+                        new MetaInfDto(LocalDateTime.now()),
+                        Map.of(toCurrencyCode, new OpenConverterCurrencyRespDto(toCurrencyCode, 0.50))), OK));
 
-        String url = "/converter/open-api-rates";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        HttpHeaders postHeaders = new HttpHeaders();
-        postHeaders.setContentType(MediaType.APPLICATION_JSON);
-        postHeaders.add(HttpHeaders.COOKIE, loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
+        CurrencyRequestDto body = new CurrencyRequestDto(fromCurrency, toCurrency, amount);
+        HttpEntity<CurrencyRequestDto> request = new HttpEntity<>(body, headers);
 
-        CurrencyRequestDto currencyRequestDto = new CurrencyRequestDto(fromCurrency, this.toCurrency, amount);
-
-        HttpEntity<CurrencyRequestDto> postRequest = new HttpEntity<>(currencyRequestDto, postHeaders);
-
-        response = testRestTemplate.exchange(url, HttpMethod.POST, postRequest, CurrencyResponseDto.class);
+        response = testRestTemplate.exchange(
+                "/converter/open-api-rates", HttpMethod.POST, request, CurrencyResponseDto.class);
     }
 
     @Then("^the result is correct and status code is ([0-9]+)$")
     public void the_result_is_correct_and_status_code_is(int status) throws JsonProcessingException {
-        String stringPath = "src/test/resources/testdata/convertedCurrency.json";
-        String body = readFileAsString(stringPath);
-        assertThat(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getBody())).isEqualTo(body);
+        String expected = readFileAsString("src/test/resources/testdata/convertedCurrency.json");
+        assertThat(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getBody()))
+                .isEqualTo(expected);
         assertThat(status).isEqualTo(response.getStatusCode().value());
-    }
-
-    private void initialize() {
-        FinFlowUser finFlowUser = new FinFlowUser(
-                firstUserUsername,
-                passwordEncoder.encode(firstUserPassword),
-                firstUserEmail,
-                AuthorityUtils.createAuthorityList(firstUserAuthorities));
-        finFlowUserRepository.add(finFlowUser);
-        System.out.printf("Added first user to db!!! %s%n", finFlowUser);
-    }
-
-    private ResponseEntity<Void> login() {
-        MultiValueMap<String, String> loginParams = new LinkedMultiValueMap<>();
-        loginParams.add("username", firstUserUsername);
-        loginParams.add("password", firstUserPassword);
-
-        HttpHeaders loginHeaders = new HttpHeaders();
-        loginHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        HttpEntity<MultiValueMap<String, String>> loginRequest = new HttpEntity<>(loginParams, loginHeaders);
-
-        return testRestTemplate.postForEntity("/auth/login", loginRequest, Void.class);
     }
 }

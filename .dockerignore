@@ -24,3 +24,7 @@ Dockerfile
 *~
 .idea
 .vscode
+
+.env
+.ai-instructions
+docker-compose.yaml
