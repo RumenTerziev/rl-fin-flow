@@ -88,6 +88,8 @@ jobs:
       - name: Deploy to Cloud Run
         env:
           VERSION: ${{ needs.build-and-push.outputs.version }}
+          SECRETS_MAPPING: >-
+            DB_DATABASE=DB_DATABASE:latest,CLOUD_SQL_INSTANCE=CLOUD_SQL_INSTANCE:latest,DB_USERNAME=DB_USERNAME:latest,DB_PASSWORD=DB_PASSWORD:latest,OPEN_AI_API_KEY=OPEN_AI_API_KEY:latest,ALLOWED_ORIGINS=ALLOWED_ORIGINS:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,GOOGLE_TOKEN_URI=GOOGLE_TOKEN_URI:latest
         run: |
           gcloud run deploy ${{ env.IMAGE }} \
             --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE }}:${VERSION} \
