@@ -63,7 +63,7 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
-          IMAGE_BASE=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE }}
+          IMAGE_BASE=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}
           echo "Building Docker image: ${IMAGE_BASE}:${VERSION}"
           docker build \
             -t ${IMAGE_BASE}:${VERSION} \
