@@ -28,6 +28,7 @@ dependencyManagement {
 
 val cucumberVersion = "7.14.1"
 val mapstructVersion = "1.5.5.Final"
+val isProd: Boolean = project.hasProperty("prod")
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -40,7 +41,9 @@ dependencies {
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-    implementation("com.google.cloud:spring-cloud-gcp-starter-sql-mysql")
+    if (isProd) {
+        implementation("com.google.cloud:spring-cloud-gcp-starter-sql-mysql")
+    }
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -63,8 +66,6 @@ dependencies {
     testImplementation("com.h2database:h2:2.2.220")
 }
 
-// Strip Spring Cloud GCP from the test classpath so its env post-processors
-// (which require Cloud SQL env vars) don't run during tests.
 configurations.named("testRuntimeClasspath") {
     exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter-sql-mysql")
     exclude(group = "com.google.cloud", module = "spring-cloud-gcp-starter")

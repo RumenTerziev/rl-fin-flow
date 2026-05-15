@@ -1,7 +1,7 @@
 FROM gradle:8.7-jdk21 AS build
 WORKDIR /workspace
 COPY . .
-RUN gradle bootJar -x test
+RUN gradle bootJar -x test -Pprod --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine AS final
 RUN apk add --no-cache ca-certificates
@@ -12,4 +12,5 @@ COPY --from=build /workspace/build/libs/*.jar app.jar
 RUN chown appuser:appgroup app.jar
 USER appuser
 EXPOSE 8080
+ENV SPRING_PROFILES_ACTIVE=prod
 ENTRYPOINT ["java", "-jar", "app.jar"]
